@@ -8,7 +8,6 @@
 #ifdef RT
   use rt_hydro_commons
 #endif
-#endif
 #if USE_TURB==1
   use turb_commons
 #endif

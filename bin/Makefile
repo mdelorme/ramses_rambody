@@ -157,11 +157,11 @@ endif
 ifeq ($(USE_TURB),1)
    VPATH += ../turb:
 endif
-VPATH += ../hydro:../pm:../poisson:../amr:../io
+VPATH += ../hydro:../pm:../poisson:../amr:../io:../rbd
 #############################################################################
 # All objects
 MODOBJ = mpi_mod.o amr_parameters.o amr_commons.o random.o pm_parameters.o sink_feedback_parameters.o \
-         pm_commons.o poisson_parameters.o dump_utils.o constants.o file_module.o
+         pm_commons.o poisson_parameters.o dump_utils.o constants.o file_module.o rbd_parameters.o rbd_commons.o
 ifeq ($(GRACKLE),1)
    MODOBJ += grackle_parameters.o
 endif
@@ -190,6 +190,12 @@ PMOBJ = init_part.o output_part.o rho_fine.o synchro_fine.o move_fine.o \
         unbinding.o merger_tree.o move_tracer.o init_tracer.o \
         read_sink_feedback_params.o sink_rt_feedback.o \
         stellar_particle.o init_stellar.o output_stellar.o
+
+# Rambody
+RBDOBJ = rbd_clean.o rbd_debug.o rbd_escapers.o rbd_force_fine.o \
+	 rbd_init.o rbd_list.o rbd_mesh.o rbd_output_mesh.o rbd_output_part.o \
+	 rbd_ptree.o rbd_sync_cluster.o rbd_sync_forces.o \
+	 rbd_synchro_fine.o rbd_sync_timestep.o
 # Poisson solver objects
 POISSONOBJ = init_poisson.o phi_fine_cg.o interpol_phi.o force_fine.o \
              multigrid_coarse.o multigrid_fine_commons.o multigrid_fine_fine.o \
@@ -213,7 +219,8 @@ TURBOBJ = turb_force_utils.o read_turb_params.o init_turb.o mpi_share_turb_field
 sinclude $(PATCH)/Makefile
 
 # All objects
-AMRLIB = $(AMROBJ) $(HYDROOBJ) $(PMOBJ) $(POISSONOBJ)
+AMRLIB = $(AMROBJ) $(RBDOBJ) $(HYDROOBJ) $(PMOBJ) $(POISSONOBJ) 
+
 ifeq ($(RT),1)
    AMRLIB += $(RTOBJ)
 endif
