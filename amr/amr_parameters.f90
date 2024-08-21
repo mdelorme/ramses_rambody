@@ -338,6 +338,7 @@ module amr_parameters
   logical::print_when_io=.false.   ! If true print when IO
   logical::synchro_when_io=.false. ! If true synchronize when IO
 
-
+  ! RAMBODY : Communications
+  integer :: MPI_COMM_RAMSES, MPI_COMM_RAMBODY
 
 end module amr_parameters

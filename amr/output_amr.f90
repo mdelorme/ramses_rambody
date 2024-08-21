@@ -7,6 +7,7 @@ subroutine dump_all
   use pm_commons
   use hydro_commons
   use cooling_module
+  use rbd_commons
 #ifdef grackle
   use grackle_parameters
 #endif
@@ -36,7 +37,6 @@ subroutine dump_all
   output_done=.true.
 
   if(IOGROUPSIZEREP>0) then
-     call title(((myid-1)/IOGROUPSIZEREP)+1,ncharcpu)
      filedir='output_'//TRIM(nchar)//'/group_'//TRIM(ncharcpu)//'/'
   else
      filedir='output_'//TRIM(nchar)//'/'
@@ -49,7 +49,7 @@ subroutine dump_all
   filename=TRIM(filedir)//'header_'//TRIM(nchar)//'.txt'
   call output_header(filename)
 #ifndef WITHOUTMPI
-  if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+  if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
   if(myid==1.and.print_when_io) write(*,*)'End backup header'
 
@@ -145,6 +145,12 @@ subroutine dump_all
      filename=trim(filedir)//'part_'//trim(nchar)//'.out'
      filename_desc=TRIM(filedir)//'part_file_descriptor.txt'
      call backup_part(filename, filename_desc)
+     if (rambody) then
+        filename = TRIM(filedir)//'rbd_'//TRIM(nchar)//'.out'
+        call rbd_output_part(filename)
+        filename = TRIM(filedir)//'rbd_mesh_'//TRIM(nchar)//'.out'
+        call rbd_output_mesh(filename)
+     end if
 #ifndef WITHOUTMPI
      if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
 #endif

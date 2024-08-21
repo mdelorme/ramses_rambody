@@ -5,6 +5,7 @@
 subroutine init_refine
   use amr_commons
   use pm_commons
+  use rbd_commons
   implicit none
   !-------------------------------------------
   ! This routine builds the initial AMR grid
@@ -52,6 +53,7 @@ subroutine init_refine_2
   ! the initial AMR grid for filetype ne 'grafic'
   !--------------------------------------------------------------
   use amr_commons
+  use rbd_commons
   use hydro_commons
 #ifdef RT
   use rt_hydro_commons
@@ -88,7 +90,14 @@ subroutine init_refine_2
         end do
 
         do ilevel=nlevelmax,levelmin,-1
-           if(pic)call merge_tree_fine(ilevel)
+           if(pic) then
+              call merge_tree_fine(ilevel)
+
+              if (rambody) then
+                 call rbd_merge_tree_fine(ilevel)
+              end if
+           end if
+        
            if(hydro)then
               call upload_fine(ilevel)
 #ifdef SOLVERmhd

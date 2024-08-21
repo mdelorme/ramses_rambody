@@ -6,6 +6,7 @@ subroutine init_tree
   use pm_commons
   use amr_commons
   use mpi_mod
+  use rbd_commons
   implicit none
 #ifndef WITHOUTMPI
   integer::info
@@ -57,7 +58,7 @@ subroutine init_tree
   nextp(tailp_free)=0
 #ifndef WITHOUTMPI
   call MPI_ALLREDUCE(numbp_free,numbp_free_tot,1,MPI_INTEGER,MPI_MIN,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   numbp_free_tot=numbp_free
@@ -133,6 +134,11 @@ subroutine init_tree
      ! Compute level 1 grid index
      error=.false.
      do i=1,npart1
+        if (idp(ind_part(i)) == rbd_gc_id) then
+           write(6,*) 'GC found at level 1 on process ', myid
+           write(6,*) 'GC pos = ', xp(ind_part(i),:)
+        end if
+        
         ind_grid(i)=son(1+ix(i)+nx*iy(i)+nxny*iz(i))
         if(ind_grid(i)==0)error=.true.
      end do
@@ -165,6 +171,8 @@ subroutine init_tree
      ! Update boundary conditions for remaining particles
      call virtual_tree_fine(ilevel)
   end do
+
+  call rbd_compute_gc_owner(.true.)
 
 end subroutine init_tree
 !################################################################
@@ -268,6 +276,7 @@ end subroutine make_tree_fine
 subroutine check_tree(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
   use amr_commons
   use pm_commons
+  use rbd_commons
   implicit none
   integer::ng,np,ilevel
   integer,dimension(1:nvector)::ind_grid
@@ -476,6 +485,7 @@ end subroutine kill_tree_fine
 subroutine kill_tree(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
   use amr_commons
   use pm_commons
+  use rbd_commons
   implicit none
   integer::ng,np,ilevel
   integer,dimension(1:nvector)::ind_grid
@@ -647,6 +657,7 @@ subroutine virtual_tree_fine(ilevel)
   use pm_commons
   use amr_commons
   use mpi_mod
+  use rbd_commons
   implicit none
   integer::ilevel
   !-----------------------------------------------------------------------
@@ -796,7 +807,7 @@ subroutine virtual_tree_fine(ilevel)
   end do
 
   ! Communicate virtual particle number to parent cpu
-  call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_WORLD,info)
+  call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_RAMSES,info)
 
 #ifdef LIGHT_MPI_COMM
   ! Count particles
@@ -878,17 +889,17 @@ subroutine virtual_tree_fine(ilevel)
 #ifndef LONGINT
         call MPI_IRECV(emission(icpu,ilevel)%fp,buf_count, &
              & MPI_INTEGER,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqrecv(countrecv),info)
+             & tagf,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #else
         call MPI_IRECV(emission(icpu,ilevel)%fp,buf_count, &
              & MPI_INTEGER8,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqrecv(countrecv),info)
+             & tagf,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #endif
         buf_count=ncache*particle_data_width
         countrecv=countrecv+1
         call MPI_IRECV(emission(icpu,ilevel)%up,buf_count, &
              & MPI_DOUBLE_PRECISION,icpu-1,&
-             & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+             & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
      end if
   end do
 #endif
@@ -919,17 +930,17 @@ subroutine virtual_tree_fine(ilevel)
 #ifndef LONGINT
         call MPI_ISEND(reception(icpu,ilevel)%fp,buf_count, &
              & MPI_INTEGER,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagf,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
         call MPI_ISEND(reception(icpu,ilevel)%fp,buf_count, &
              & MPI_INTEGER8,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagf,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
         buf_count=ncache*particle_data_width
         countsend=countsend+1
         call MPI_ISEND(reception(icpu,ilevel)%up,buf_count, &
              & MPI_DOUBLE_PRECISION,icpu-1,&
-             & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
      end if
   end do
@@ -951,7 +962,7 @@ subroutine virtual_tree_fine(ilevel)
   call MPI_WAITALL(countsend,reqsend,statuses,info)
 
   call MPI_ALLREDUCE(numbp_free,numbp_free_tot,1,MPI_INTEGER,MPI_MIN,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
   ok_free=(numbp_free-ncache_tot)>=0
   if(.not. ok_free)then
      write(*,*)'No more free memory for particles'
@@ -1088,6 +1099,7 @@ subroutine virtual_tree_fine(ilevel)
 #endif
 
 #endif
+  !call rbd_compute_gc_owner(.false.)
 
 111 format('   Entering virtual_tree_fine for level ',I2)
 end subroutine virtual_tree_fine

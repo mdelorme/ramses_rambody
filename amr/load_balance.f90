@@ -5,6 +5,7 @@
 subroutine load_balance
   use amr_commons
   use pm_commons
+  use rbd_commons
   use hydro_commons, ONLY: nvar
 #ifndef WITHOUTMPI
   use hydro_commons, ONLY: uold, pstarold, rho_eq, p_eq
@@ -197,10 +198,10 @@ subroutine load_balance
      comm_buffin(ilevel,2)=numbl(myid,ilevel)
      comm_buffin(ilevel,3)=numbl(myid,ilevel)
   end do
-  call MPI_ALLREDUCE(comm_buffin(1,1),comm_buffout(1,1),nlevelmax,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(comm_buffin(1,2),comm_buffout(1,2),nlevelmax,MPI_INTEGER,MPI_MIN,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(comm_buffin(1,3),comm_buffout(1,3),nlevelmax,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(used_mem        ,used_mem_tot     ,1        ,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(comm_buffin(1,1),comm_buffout(1,1),nlevelmax,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(comm_buffin(1,2),comm_buffout(1,2),nlevelmax,MPI_INTEGER,MPI_MIN,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(comm_buffin(1,3),comm_buffout(1,3),nlevelmax,MPI_INTEGER,MPI_MAX,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(used_mem        ,used_mem_tot     ,1        ,MPI_INTEGER,MPI_MAX,MPI_COMM_RAMSES,info)
   do ilevel=1,nlevelmax
      numbtot(1,ilevel)=comm_buffout(ilevel,1)
      numbtot(2,ilevel)=comm_buffout(ilevel,2)
@@ -220,12 +221,12 @@ subroutine load_balance
 
   nxny=nx*ny
   do iz=kcoarse_min,kcoarse_max
-  do iy=jcoarse_min,jcoarse_max
-  do ix=icoarse_min,icoarse_max
-     ind=1+ix+iy*nx+iz*nxny
-     cpu_map(ind)=cpu_map2(ind)
-  end do
-  end do
+    do iy=jcoarse_min,jcoarse_max
+      do ix=icoarse_min,icoarse_max
+        ind=1+ix+iy*nx+iz*nxny
+        cpu_map(ind)=cpu_map2(ind)
+      end do
+    end do
   end do
   do ilevel=1,nlevelmax
      ! Build new communicators

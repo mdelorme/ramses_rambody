@@ -5,6 +5,7 @@
 subroutine output_frame()
   use amr_commons
   use pm_commons
+  use rbd_commons
   use hydro_commons
 #ifdef RT
   use rt_parameters
@@ -12,7 +13,6 @@ subroutine output_frame()
 #endif
   use constants, only: pi, c_cgs, L_sun, M_sun, yr2sec
   use mpi_mod
-  use file_module, ONLY: mkdir
   implicit none
 #if NDIM > 1
 #ifndef WITHOUTMPI
@@ -55,7 +55,6 @@ subroutine output_frame()
   real(kind=8),dimension(:,:,:),allocatable::data_frame
   real(kind=8),dimension(:,:),allocatable::weights
   real(kind=8)::e,uvar
-  integer, parameter :: mode = int(O'755')
   integer::igrid,ilevel
   integer::i,j,ivar
   integer::proj_ind,nh_temp,nw_temp,proj_ax
@@ -101,7 +100,6 @@ subroutine output_frame()
  ! Only one projection available in 2D
  if((ndim.eq.2).and.(trim(proj_axis).ne.'z')) proj_axis = 'z'
 
- ! Loop over projections
  do proj_ind=1,LEN(trim(proj_axis))
     
     opened=.false.
@@ -908,6 +906,100 @@ subroutine output_frame()
                 enddo
              endif
              data_frame(ii,jj,kk)=data_frame(ii,jj,kk)+(10d0**(log_lum))*(mp(j)/msol)*lumsol
+          else if (rambody .and. typep(j)%family==FAM_TRACER_STAR .and. typep(j)%tag == 1) then
+             data_frame(ii,jj,kk)=data_frame(ii,jj,kk) + 1.0e-3 ! Manual luminosity to be seen
+
+          if (rambody) then
+           write(6,*) 'Computing movie frame for nbody6 particles. Npart=', nb6_npart
+           call flush(6)
+
+           ! Just in case, we sync the GC
+           !call rbd_sync_gc(.true.)
+           do j=1,nb6_npart
+#if NDIM>2
+              xpf  = nb6_xp(1,j)+rbd_xc(1)-xcen
+              ypf  = nb6_xp(2,j)+rbd_xc(2)-ycen
+              zpf  = nb6_xp(3,j)+rbd_xc(3)-zcen
+              ! Projection
+              xtmp = cos(theta_cam)*xpf+sin(theta_cam)*ypf
+              ytmp = cos(theta_cam)*ypf-sin(theta_cam)*xpf
+              xpf  = xtmp
+              ypf  = ytmp
+              ytmp = cos(phi_cam)*ypf+sin(phi_cam)*zpf
+              ztmp = cos(phi_cam)*zpf-sin(phi_cam)*ypf
+
+              if(proj_ax.eq.1) then ! x-projection
+                 xpf = ytmp
+                 ypf = ztmp
+                 zpf = xtmp
+              elseif(proj_ax.eq.2) then ! y-projection
+                 xpf = xtmp
+                 ypf = ztmp
+                 zpf = ytmp
+              else
+                 xpf = xtmp
+                 ypf = ytmp
+                 zpf = ztmp
+              endif
+              if(perspective_camera(proj_ind))then
+                 xpf  = xpf*focal_camera(proj_ind)/(dist_cam-zpf)
+                 ypf  = ypf*focal_camera(proj_ind)/(dist_cam-zpf)
+              endif
+              xpf  = xpf+xcen
+              ypf  = ypf+ycen
+              zpf  = zpf+zcen
+
+              ! Check if particle is in front of camera
+              if(dist_cam-zpf.lt.0) cycle
+
+              ! Check if particle is in the movie box
+              if(    xpf.lt.xleft_frame.or.xpf.ge.xright_frame.or.&
+                   & ypf.lt.yleft_frame.or.ypf.ge.yright_frame.or.&
+                   & zpf.lt.zleft_frame.or.zpf.ge.zright_frame)cycle
+#else
+              xpf  = nb6_xp(1,j)-xcen
+              ypf  = nb6_xp(2,j)-ycen
+              xtmp = cos(theta_cam)*xpf+sin(theta_cam)*xpf
+              ytmp = cos(theta_cam)*ypf-sin(theta_cam)*ypf
+              xpf  = xtmp
+              ypf  = ytmp
+              xpf  = xpf+xcen
+              ypf  = ypf+xcen
+              if(    xpf.lt.xleft_frame.or.xpf.ge.xright_frame.or.&
+                   & ypf.lt.yleft_frame.or.ypf.ge.yright_frame)cycle
+#endif
+              ! Compute map indices for the particle
+              ii = min(int((xpf-xleft_frame)/dx_frame)+1,nw_frame)
+              jj = min(int((ypf-yleft_frame)/dy_frame)+1,nh_frame)
+
+              do kk=1,n_movie_vars
+
+                 if(star .and. movie_vars(kk) .eq. i_mv_lum) then
+                    ! Star particles luminosity in code units (luminosity over speed of light squared)
+                    ! The polynome is fitted on Starburst99 instantaneous bolometric magnitude
+                    ! for  Z = 0.04, alpha = 2.35, M_up = 100 Msol
+                    ! http://www.stsci.edu/science/starburst99/data/bol_inst_a.dat
+                    ! Polynome is poorly constrained on high and low ends
+                    if(log10((texp-tp(j))/year)<6)then
+                       log_lum = 3.2d0
+                    else if(log10((texp-tp(j))/year)>9)then
+                       log_lum = log10((texp-tp(j))/year)*(-9.79362D-01)+9.08855D+00
+                    else
+                       log_lum = 0d0
+                       do npoly=1,size(lum_poly)
+                          log_lum = log_lum+lum_poly(npoly)*(log10((texp-tp(j))/year))**(npoly-1)
+                       enddo
+                    endif
+
+                    data_frame(ii,jj,kk)=data_frame(ii,jj,kk)+(10d0**(log_lum))*(mp(j)/msol)*lumsol
+                 else
+                    ! Star particles
+                    data_frame(ii,jj,kk)=data_frame(ii,jj,kk) + 1.0e-3 ! Manual luminosity to be seen
+
+                 endif
+              enddo
+           end do
+        end if
           endif
        enddo
     end do

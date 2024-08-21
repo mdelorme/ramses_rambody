@@ -192,6 +192,7 @@ end subroutine move_fine_static
 !#########################################################################
 subroutine move1(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
   use amr_commons
+  use rbd_commons
   use pm_commons
   use poisson_commons
   use hydro_commons, ONLY: uold,smallr
@@ -223,6 +224,16 @@ subroutine move1(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
   real(dp),dimension(1:3)::skip_loc
   ! Family
   logical,dimension(1:nvector),save :: classical_tracer
+
+  logical::has_rbd_gc
+  real(dp),dimension(1:3)::dbg
+  real(dp),dimension(1:3)::fc
+  real(dp) :: max_lim
+  real(dp) :: scale_l, scale_t, scale_d, scale_v, scale_nH, scale_T2
+
+  call units(scale_l, scale_t, scale_d, scale_v, scale_nH, scale_T2)
+
+  has_rbd_gc = .false.
 
   ! Mesh spacing in that level
   dx=0.5D0**ilevel
@@ -484,7 +495,7 @@ subroutine move1(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
         do idim=1,ndim
            do j=1,np
               if (.not. classical_tracer(j)) then
-              ff(j,idim)=ff(j,idim)+f(indp(j,ind),idim)*vol(j,ind)
+                ff(j,idim)=ff(j,idim)+f(indp(j,ind),idim)*vol(j,ind)
               end if
            end do
         end do
@@ -513,7 +524,28 @@ subroutine move1(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
      endif
   end do
 
-  ! For sink cloud particle, overwrite velocity with sink velocity
+  ! Including effect from the cluster if necessary
+  if (rambody .and. rbd_nbody6_force) then
+     do j=1,np
+        if (idp(ind_part(j)) /= rbd_gc_id) then
+           ! Getting the contribution and adding it the acceleration term
+           call rbd_get_force_contribution(xp(ind_part(j),1:3), fc)
+           
+           ! DEBUG
+           max_lim = norm2(rbd_mesh_pos(:, 2))
+           !write(6,'(a, i8, 14e20.7)') 'FORCEDBG:', idp(ind_part(j)), t*scale_t, xp(ind_part(j), :), rbd_xc, fc(:), norm2(fc(:)), norm2(xp(ind_part(j), :) - rbd_xc), max_lim, nb6_tot_mass
+           !call flush(6)
+           
+           do idim=1, ndim
+              new_vp(j, idim) = new_vp(j, idim) + 0.5*dtnew(j)*fc(idim)
+           end do
+        else
+           !write(6,*) 'Current particle is RBD GC, ignoring force'
+        end if
+     end do
+  end if
+
+  ! For sink cloud particle only
   if(sink)then
      ! Overwrite cloud particle velocity with sink velocity
      do idim=1,ndim
@@ -548,6 +580,17 @@ subroutine move1(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
   do idim=1,ndim
      do j=1,np
         xp(ind_part(j),idim)=new_xp(j,idim)
+
+        ! Updating rbd guiding center
+        if (idp(ind_part(j)) == rbd_gc_id) then
+           has_rbd_gc = .true.
+           rbd_last_xc(idim) = rbd_xc(idim)
+           rbd_xc(idim) = new_xp(j, idim)
+           rbd_vc(idim) = vp(ind_part(j), idim)
+           if (idim == 3) then
+              write(6,*) 'RBD GC:', rbd_xc(:)
+           end if
+        end if
      end do
   end do
 

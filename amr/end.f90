@@ -4,6 +4,8 @@ subroutine clean_end
   ! Properly end the run. 
   !---------------------------
   use mpi_mod
+  use rbd_commons
+
   implicit none
 #ifndef WITHOUTMPI
   integer::info
@@ -13,6 +15,11 @@ subroutine clean_end
   call output_timer(.false., str)
 
 #ifndef WITHOUTMPI
+  if (rambody) then
+     write(6,*) 'RBD : Killing Nbody6 !'
+     call MPI_Abort(MPI_COMM_WORLD, 2, info)
+  end if
+
   call MPI_FINALIZE(info)
 #endif
 

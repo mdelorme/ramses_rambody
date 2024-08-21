@@ -952,6 +952,7 @@ end subroutine make_grid_fine
 !###############################################################
 subroutine kill_grid(ind_cell,ilevel,nn,ibound,boundary_region)
   use amr_commons
+  use rbd_commons
   use pm_commons
   use hydro_commons
   use poisson_commons
@@ -1066,6 +1067,9 @@ subroutine kill_grid(ind_cell,ilevel,nn,ibound,boundary_region)
         headp(ind_grid_son(i))=0
         tailp(ind_grid_son(i))=0
         numbp(ind_grid_son(i))=0
+        rbd_headp(ind_grid_son(i))=0
+        rbd_tailp(ind_grid_son(i))=0
+        rbd_numbp(ind_grid_son(i))=0
      end do
   end if
 

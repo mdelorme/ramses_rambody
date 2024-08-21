@@ -75,7 +75,7 @@ subroutine synchro_fine(ilevel)
   if(sink)then
      if(nsink>0)then
 #ifndef WITHOUTMPI
-        call MPI_ALLREDUCE(fsink_new,fsink_all,nsinkmax*ndim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(fsink_new,fsink_all,nsinkmax*ndim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
         fsink_all=fsink_new
 #endif
@@ -203,7 +203,7 @@ subroutine synchro_fine_static(ilevel)
   if(sink)then
      if(nsink>0)then
 #ifndef WITHOUTMPI
-        call MPI_ALLREDUCE(fsink_new,fsink_all,nsinkmax*ndim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(fsink_new,fsink_all,nsinkmax*ndim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
         fsink_all=fsink_new
 #endif
@@ -226,6 +226,7 @@ subroutine sync(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
   use amr_commons
   use pm_commons
   use poisson_commons
+  use rbd_commons
   implicit none
   integer::ng,np,ilevel
   integer,dimension(1:nvector)::ind_grid
@@ -249,6 +250,13 @@ subroutine sync(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
   real(dp),dimension(1:nvector,1:twotondim),save::vol
   integer ,dimension(1:nvector,1:twotondim),save::igrid,icell,indp,kg
   real(dp),dimension(1:3)::skip_loc
+
+  ! Rambody, nbody6 force
+  real(dp),dimension(1:3)::fc
+  real(dp) :: max_lim
+  real(dp) :: scale_l, scale_t, scale_d, scale_v, scale_nH, scale_T2
+
+  call units(scale_l, scale_t, scale_d, scale_v, scale_nH, scale_T2)
 
   ! Mesh spacing in that level
   dx=0.5D0**ilevel
@@ -533,6 +541,24 @@ subroutine sync(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
         end do
      endif
   end do
+  
+  ! Including effect from the cluster if necessary
+  if (rambody .and. rbd_nbody6_force) then
+     do j=1,np
+        if (idp(ind_part(j)) /= rbd_gc_id) then
+           ! Getting the contribution and adding it the acceleration term
+           call rbd_get_force_contribution(xp(ind_part(j),:), fc)
+           max_lim = norm2(rbd_mesh_pos(:, 2))
+           !write(6,'(a, i8, 14e20.7)') 'FORCEDBG:', idp(ind_part(j)), t*scale_t, xp(ind_part(j), :), rbd_xc, fc(:), norm2(fc(:)), norm2(xp(ind_part(j), :) - rbd_xc), max_lim, nb6_tot_mass
+           !call flush(6)
+
+           do idim=1, ndim
+              new_vp(j, idim) = new_vp(j, idim) + 0.5*dteff(j)*fc(idim)
+           end do
+        end if
+     end do
+  end if
+
   do idim=1,ndim
      do j=1,np
         vp(ind_part(j),idim)=new_vp(j,idim)

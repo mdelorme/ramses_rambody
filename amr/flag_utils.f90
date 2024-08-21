@@ -280,6 +280,8 @@ end subroutine ensure_ref_rules
 !###############################################################
 subroutine userflag_fine(ilevel)
   use amr_commons
+  use rbd_commons
+  use rbd_parameters
   use hydro_commons
   use cooling_module
   implicit none
@@ -391,6 +393,16 @@ subroutine userflag_fine(ilevel)
               end do
               call geometry_refine(xx,ok,ngrid,ilevel)
            end if
+        end if
+
+        if (refine_on_rambody) then
+           do i=1, ngrid
+              !if (rbd_numbp(ind_grid(i)) > 0) then
+              !   write(6,*) 'Level ', ilevel, ' np=', rbd_numbp(ind_grid(i))
+              !   call rbd_dbg_part_count(ilevel, 'FLAG')
+              !end if
+              ok(i) = ok(i) .or. (rbd_numbp(ind_grid(i)) >= rbd_refine_npart)
+           end do
         end if
 
         ! Count newly flagged cells

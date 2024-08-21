@@ -1,11 +1,13 @@
-subroutine adaptive_loop
+ subroutine adaptive_loop
   use amr_commons
   use hydro_commons
   use pm_commons
+  use rbd_commons
   use poisson_commons
   use cooling_module
 #ifdef RT
   use rt_hydro_commons
+#endif
 #endif
 #if USE_TURB==1
   use turb_commons
@@ -18,6 +20,7 @@ subroutine adaptive_loop
   real(kind=8)::tt1,tt2,muspt,muspt_this_step,wallsec,dumpsec
   real(kind=4)::real_mem,real_mem_tot
   real(kind=8),save::tstart=0
+  logical::rbd_continue
 #endif
   integer::ilevel,idim,ivar
 
@@ -55,6 +58,7 @@ subroutine adaptive_loop
        call set_table(dble(aexp))    ! Initialize cooling look up table
 #endif
   if(pic)call init_part              ! Initialize particle variables
+  if(rambody) call rbd_init          ! Initialize rambody  
   if(pic)call init_tree              ! Initialize particle tree
   if(nrestart==0)call init_refine_2  ! Build initial AMR grid again
 
@@ -77,7 +81,7 @@ subroutine adaptive_loop
   if(myid==1)write(*,*)'Starting time integration'
 
   do ! Main time loop
-                               call timer('coarse levels','start')
+     call timer('coarse levels','start')
 
 #ifndef WITHOUTMPI
      tt1=MPI_WTIME()
@@ -92,6 +96,7 @@ subroutine adaptive_loop
 #ifdef SOLVERmhd
      emag_tot=0.0D0  ! Reset total magnetic energy
 #endif
+     !call rbd_ramses_part_per_level('RMSPT before refine', 0)     
 
      ! Make new refinements
      if(levelmin.lt.nlevelmax.and.(.not.static.or.(nstep_coarse_old.eq.nstep_coarse.and.restart_remap)))then
@@ -130,6 +135,7 @@ subroutine adaptive_loop
                  call make_virtual_fine_dp(f(1,idim),ilevel)
               end do
            end if
+
            if(ilevel<levelmin)call refine_fine(ilevel)
         end do
      endif
@@ -139,10 +145,18 @@ subroutine adaptive_loop
      if(MC_tracer) then
         fluxes = 0_dp
      end if
+     if (rambody) then
+        call rbd_sync_gc(.false.)
+     end if
 
      ! Call base level
      call amr_step(levelmin,1)
-                               call timer('coarse levels','start')
+
+     if (rambody .and. rbd_store_escapers) then
+        call rbd_push_escapers
+     end if
+     
+     call timer('coarse levels','start')
 
      if(levelmin.lt.nlevelmax.and.(.not.static.or.(nstep_coarse_old.eq.nstep_coarse.and.restart_remap)))then
         do ilevel=levelmin-1,1,-1
@@ -191,6 +205,8 @@ subroutine adaptive_loop
         call flag_coarse
      endif
 
+     !!call rbd_ramses_part_per_level('RMSPT after flag', 0)
+
      ! New coarse time-step
      nstep_coarse=nstep_coarse+1
 
@@ -198,7 +214,7 @@ subroutine adaptive_loop
      tt2=MPI_WTIME()
      if(mod(nstep_coarse,ncontrol)==0)then
         call getmem(real_mem)
-        call MPI_ALLREDUCE(real_mem,real_mem_tot,1,MPI_REAL,MPI_MAX,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(real_mem,real_mem_tot,1,MPI_REAL,MPI_MAX,MPI_COMM_RAMSES,info)
         if(myid==1)then
            if (tot_pt==0) muspt=0 ! dont count first timestep
            n_step = int(numbtot(1,levelmin),kind=8)*twotondim
@@ -226,6 +242,8 @@ subroutine adaptive_loop
         endif
      endif
 #endif
+
+     !call rbd_ramses_part_per_level('RMSPT after everything', 0)
 
   end do
 

@@ -116,8 +116,8 @@ subroutine output_timer(write_file, filename)
 #ifndef WITHOUTMPI
   if (ncpu > 1) then
      ! Check that timers are consistent across ranks
-     call MPI_BARRIER(MPI_COMM_WORLD,mpi_err)
-     call MPI_GATHER(ntimer,1,MPI_INTEGER,all_ntimer,1,MPI_INTEGER,0,MPI_COMM_WORLD,mpi_err)
+     call MPI_BARRIER(MPI_COMM_RAMSES,mpi_err)
+     call MPI_GATHER(ntimer,1,MPI_INTEGER,all_ntimer,1,MPI_INTEGER,0,MPI_COMM_RAMSES,mpi_err)
      if (id_is_one) then
         if (maxval(all_ntimer) .ne. minval(all_ntimer)) then
            write (ilun,*)
@@ -140,7 +140,7 @@ subroutine output_timer(write_file, filename)
         enddo
         if (any(gprint_timer)) call sleep(1) ! Make sure that master rank finished, before we print from other rank.
      endif
-     call MPI_SCATTER(gprint_timer,1,MPI_LOGICAL,print_timer,1,MPI_LOGICAL,0,MPI_COMM_WORLD,mpi_err)
+     call MPI_SCATTER(gprint_timer,1,MPI_LOGICAL,print_timer,1,MPI_LOGICAL,0,MPI_COMM_RAMSES,mpi_err)
      if (print_timer) then
         write (ilun,*)
         write (ilun,*) 'Labels of timer on rank==',myid
@@ -151,15 +151,15 @@ subroutine output_timer(write_file, filename)
         write (ilun,*)
      endif
 
-     call MPI_BARRIER(MPI_COMM_WORLD,mpi_err)
-     call MPI_ALLREDUCE(total,gtotal,1,MPI_REAL8,MPI_SUM,MPI_COMM_WORLD,mpi_err)
+     call MPI_BARRIER(MPI_COMM_RAMSES,mpi_err)
+     call MPI_ALLREDUCE(total,gtotal,1,MPI_REAL8,MPI_SUM,MPI_COMM_RAMSES,mpi_err)
      gtotal = gtotal / ncpu
 
      if (id_is_one) write (ilun,*) '--------------------------------------------------------------------'
      if (id_is_one) write (ilun,'(/a)') '     minimum       average       maximum' // &
                   '  standard dev        std/av       %   rmn   rmx  TIMER'
      do i = 1,ntimer
-        call MPI_GATHER(real(time(i),kind=8),1,MPI_REAL8,vtime,1,MPI_REAL8,0,MPI_COMM_WORLD,mpi_err)
+        call MPI_GATHER(real(time(i),kind=8),1,MPI_REAL8,vtime,1,MPI_REAL8,0,MPI_COMM_RAMSES,mpi_err)
         if (id_is_one) then
            if (maxval(vtime)/gtotal > 0.001) then
               avtime  = sum(vtime) / ncpu ! average time used

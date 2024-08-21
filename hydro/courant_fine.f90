@@ -2,6 +2,7 @@ subroutine courant_fine(ilevel)
   use amr_commons
   use hydro_commons
   use poisson_commons
+  use rbd_commons
   use mpi_mod
 #if USE_TURB==1
   use turb_commons
@@ -26,6 +27,14 @@ subroutine courant_fine(ilevel)
   real(dp),dimension(1:nvector,1:nvar),save::uu
   real(dp),dimension(1:nvector,1:ndim),save::gg
 
+  ! Rambody
+  real(dp),dimension(1:3)::xx
+  real(dp),dimension(1:nvector,1:3)::fc
+  real(dp),dimension(1:twotondim,1:3)::xc
+  real(dp),dimension(1:3)::skip_loc
+  real(dp)::dx_lev
+  integer::ix, iy, iz
+
   if(numbtot(1,ilevel)==0)return
   if(verbose)write(*,111)ilevel
 
@@ -39,6 +48,12 @@ subroutine courant_fine(ilevel)
   scale=boxlen/dble(nx_loc)
   dx=0.5D0**ilevel*scale
   vol=dx**ndim
+  dx_lev=0.5D0**ilevel
+
+  skip_loc=(/0.0d0,0.0d0,0.0d0/)
+  if(ndim>0)skip_loc(1)=dble(icoarse_min)
+  if(ndim>1)skip_loc(2)=dble(jcoarse_min)
+  if(ndim>2)skip_loc(3)=dble(kcoarse_min)
 
   ! Loop over active grids by vector sweeps
   ncache=active(ilevel)%ngrid
@@ -55,12 +70,33 @@ subroutine courant_fine(ilevel)
            ind_cell(i)=ind_grid(i)+iskip
         end do
 
+        ! Rambody cell location
+        if (rambody .and. rbd_nbody6_force) then
+           iz=(ind-1)/4
+           iy=(ind-1-4*iz)/2
+           ix=(ind-1-2*iy-4*iz)
+           if(ndim>0)xc(ind,1)=(dble(ix)-0.5D0)*dx_lev
+           if(ndim>1)xc(ind,2)=(dble(iy)-0.5D0)*dx_lev
+           if(ndim>2)xc(ind,3)=(dble(iz)-0.5D0)*dx_lev
+           
+        end if
+        
         ! Gather leaf cells
         nleaf=0
         do i=1,ngrid
            if(son(ind_cell(i))==0)then
               nleaf=nleaf+1
               ind_leaf(nleaf)=ind_cell(i)
+
+              if (rambody .and. rbd_nbody6_force) then
+                 xx=xg(ind_grid(i),:)+xc(ind,:)
+                 ! Rescale position from code units to user units
+                 xx=(xx-skip_loc)*scale
+
+                 rbd_debug_mesh = .false.
+                 call rbd_get_force_contribution(xx, fc(nleaf,:))
+                 rbd_debug_mesh = .false.
+              end if
            end if
         end do
 
@@ -74,6 +110,14 @@ subroutine courant_fine(ilevel)
         ! Gather gravitational acceleration
         gg=0.0d0
         if(poisson)then
+        if (rambody .and. rbd_nbody6_force) then
+           ! We need the position here
+           do idim=1,ndim
+              do i=1,nleaf
+                 gg(i,idim)=f(ind_leaf(i),idim) + fc(i,idim)
+              end do
+           end do
+        else
            do idim=1,ndim
               do i=1,nleaf
                  gg(i,idim)=f(ind_leaf(i),idim)
@@ -136,9 +180,9 @@ subroutine courant_fine(ilevel)
   comm_buffin(2)=ekin_loc
   comm_buffin(3)=eint_loc
   call MPI_ALLREDUCE(comm_buffin,comm_buffout,3,MPI_DOUBLE_PRECISION,MPI_SUM,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
   call MPI_ALLREDUCE(dt_loc,dt_all,1,MPI_DOUBLE_PRECISION,MPI_MIN,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
   mass_all=comm_buffout(1)
   ekin_all=comm_buffout(2)
   eint_all=comm_buffout(3)
@@ -162,6 +206,7 @@ subroutine check_cons(ilevel)
   use amr_commons
   use hydro_commons
   use poisson_commons
+  use rbd_commons
   use mpi_mod
   implicit none
 #ifndef WITHOUTMPI
@@ -173,10 +218,10 @@ subroutine check_cons(ilevel)
   ! Check mass and energy conservation
   !----------------------------------------------------------------------
   integer::i,ivar,ind,ncache,igrid,iskip
-  integer::nleaf,ngrid
+  integer::info,nleaf,ngrid,
   integer,dimension(1:nvector),save::ind_grid,ind_cell,ind_leaf
 
-  real(dp)::dx,vol
+  real(dp)::dx,vol,
   real(kind=8)::mass_loc,ekin_loc,eint_loc
   real(kind=8)::mass_all,ekin_all,eint_all
   real(dp),dimension(1:nvector,1:nvar),save::uu
@@ -206,7 +251,6 @@ subroutine check_cons(ilevel)
         do i=1,ngrid
            ind_cell(i)=ind_grid(i)+iskip
         end do
-
         ! Gather leaf cells
         nleaf=0
         do i=1,ngrid
@@ -259,7 +303,7 @@ subroutine check_cons(ilevel)
   comm_buffin(1)=mass_loc
   comm_buffin(2)=ekin_loc
   comm_buffin(3)=eint_loc
-  call MPI_ALLREDUCE(comm_buffin,comm_buffout,3,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(comm_buffin,comm_buffout,3,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   mass_all=comm_buffout(1)
   ekin_all=comm_buffout(2)
   eint_all=comm_buffout(3)
@@ -272,6 +316,10 @@ subroutine check_cons(ilevel)
   mass_tot=mass_tot+mass_all
   ekin_tot=ekin_tot+ekin_all
   eint_tot=eint_tot+eint_all
+
+  if (rambody) then
+     mass_tot = mass_tot + nb6_tot_mass
+  end if
 
 111 format('   Entering check_cons for level ',I2)
 

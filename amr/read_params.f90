@@ -1,5 +1,6 @@
 subroutine read_params
   use amr_commons
+  use rbd_commons
   use pm_parameters
   use poisson_parameters
   use hydro_parameters
@@ -19,7 +20,7 @@ subroutine read_params
   real(kind=8)::aend=0
   logical::nml_ok, info_ok
   integer,parameter::tag=1134
-#ifndef WITHOUTMPI
+  #ifndef WITHOUTMPI
   integer::dummy_io,ierr,info2
 #endif
 #if NDIM==1
@@ -45,6 +46,9 @@ subroutine read_params
    type(communicator_legacy),allocatable,dimension(:,:)::emission_reception_legacy  ! 2D (ncpu,nlevelmax) data emission/reception/active_mg/emission_mg "heavy" buffer
 #endif
 
+  ! Rambody
+  integer::nb6_procs, rms_procs, tmp_color, tmp_rank, wld_id, rbd_lid
+  character(len=32) :: tmp
   !--------------------------------------------------
   ! Namelist definitions
   !--------------------------------------------------
@@ -70,18 +74,68 @@ subroutine read_params
   namelist/tracer_params/MC_tracer,tracer_feed,tracer_feed_fmt &
        & ,tracer_mass,tracer_first_balance_part_per_cell &
        & ,tracer_first_balance_levelmin
+  namelist/rbd_params/rambody,rbdpartmax,sync_method,rbd_xc0,rbd_vc0,refine_on_rambody,rbd_mesh_Nx,rbd_nbody6_force,max_nb6_steps,rbd_limit_dt,rbd_max_rms_dt, rbd_store_escapers, rbd_epsilon, rbd_restart
 
   ! MPI initialization
 #ifndef WITHOUTMPI
   call MPI_INIT(ierr)
-  call MPI_COMM_RANK(MPI_COMM_WORLD,myid,ierr)
-  call MPI_COMM_SIZE(MPI_COMM_WORLD,ncpu,ierr)
-  myid=myid+1 ! Careful with this...
+  call MPI_COMM_RANK(MPI_COMM_WORLD, wld_id, ierr)
+  myid = wld_id
+  write(6,*) 'RAMSES : Hi from process : ', myid
+
+  ! RAMBODY INIT
+  call getenv('NB6_PROCS', tmp)
+  read(tmp, '(I6)') nb6_procs
+
+  rambody = (nb6_procs > 0)
+
+  call getenv('RAMSES_PROCS', tmp)
+  read(tmp, '(I6)') ncpu
+  
+  ! Creating the new communicators
+  ! 1- Ramses communicator
+  if (rambody) then
+     call MPI_Barrier(MPI_COMM_WORLD, ierr)
+     call MPI_COMM_SPLIT(MPI_COMM_WORLD, 1, wld_id, MPI_COMM_RAMSES, ierr)
+  else
+     MPI_COMM_RAMSES = MPI_COMM_WORLD
+  end if
+
+  call MPI_COMM_RANK(MPI_COMM_RAMSES, myid, ierr)
+  write(6,*) 'Ramses : On MPI_COMM_RAMSES, hi from id : ', myid
+  myid = myid + 1
+  
+  ! 2- Rambody communicator (unused if not rambody but who cares right ?)
+  tmp_color = MPI_UNDEFINED
+  tmp_rank = 0
+  if (myid .eq. 1) then
+     tmp_color = 0
+  end if
+  call MPI_COMM_SPLIT(MPI_COMM_WORLD, tmp_color, wld_id, MPI_COMM_RAMBODY, ierr)
+  
+  if (myid .eq. 1) then
+     call MPI_COMM_Rank(MPI_COMM_RAMBODY, rbd_lid, ierr)
+     write(6,*) 'Ramses : RMS_COMM id = ', myid, ' associated to MPI_COMM_RAMBODY id ', rbd_lid
+  end if
+  
 #endif
 #ifdef WITHOUTMPI
   ncpu=1
   myid=1
 #endif
+
+
+  !if (myid .eq. 1) then
+  !   ! Output redirection
+  !   call getenv('RAMBODY_RMS_OUT', tmp)
+  !   open(unit=6, file=tmp, access='append', action='write', form='formatted')
+  !   call getenv('RAMBODY_RMS_ERR', tmp)
+  !   open(unit=7, file=tmp, access='append', action='write', form='formatted')
+  !else
+  !   close(6)
+  !   close(7)
+  !end if
+  
   !--------------------------------------------------
   ! Advertise RAMSES
   !--------------------------------------------------
@@ -93,7 +147,7 @@ subroutine read_params
   write(*,*)'_/    _/   _/    _/   _/    _/         _/  _/               _/ '
   write(*,*)'_/    _/   _/    _/   _/    _/   _/    _/  _/         _/    _/ '
   write(*,*)'_/    _/   _/    _/   _/    _/    _/_/_/   _/_/_/_/    _/_/_/  '
-  write(*,*)'                        Version 3.0                            '
+  write(*,*)'              RAMBODY EDITION (based on Ramses v3.0)           '
   write(*,*)'       written by Romain Teyssier (Princeton University)       '
   write(*,*)'           (c) CEA 1999-2007, UZH 2008-2021, PU 2022           '
   write(*,*)' '
@@ -137,7 +191,7 @@ subroutine read_params
   CALL getarg(1,infile)
   endif
 #ifndef WITHOUTMPI
-  call MPI_BCAST(infile,80,MPI_CHARACTER,0,MPI_COMM_WORLD,ierr)
+  call MPI_BCAST(infile,80,MPI_CHARACTER,0,MPI_COMM_RAMSES,ierr)
 #endif
 
   !-------------------------------------------------
@@ -149,7 +203,7 @@ subroutine read_params
      if(IOGROUPSIZE>0) then
         if (mod(myid-1,IOGROUPSIZE)/=0) then
            call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-                & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+                & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
         end if
      endif
 #endif
@@ -194,6 +248,10 @@ subroutine read_params
   rewind(1)
   read(1,NML=poisson_params,END=81)
 81 continue
+  rewind(1)
+  read(1,NML=rbd_params,END=80)
+80 continue
+
 
 #ifndef WITHOUTMPI
 #ifdef LIGHT_MPI_COMM
@@ -395,7 +453,7 @@ subroutine read_params
      if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
         dummy_io=1
         call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-             & MPI_COMM_WORLD,info2)
+             & MPI_COMM_RAMSES,info2)
      end if
   endif
 #endif
@@ -477,7 +535,7 @@ subroutine read_params
   end if
 
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+  call MPI_BARRIER(MPI_COMM_RAMSES, ierr)
 #endif
 
 end subroutine read_params

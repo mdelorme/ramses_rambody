@@ -2,6 +2,7 @@ subroutine newdt_fine(ilevel)
   use pm_commons
   use amr_commons
   use hydro_commons
+  use rbd_commons
   use poisson_commons, ONLY: gravity_type
 #ifdef RT
   use rt_parameters, ONLY: rt_advect, rt_nsubcycle
@@ -87,7 +88,7 @@ subroutine newdt_fine(ilevel)
         dtnew(ilevel)=MIN(dtnew(ilevel),courant_factor*dx_loc/vsink_max)
      endif
   endif
-  
+
 #ifdef ATON
   ! Maximum time step for ATON
   if(aton)then
@@ -161,9 +162,9 @@ subroutine newdt_fine(ilevel)
      ! Minimize time step over all cpus
 #ifndef WITHOUTMPI
      call MPI_ALLREDUCE(dt_loc,dt_all,1,MPI_DOUBLE_PRECISION,MPI_MIN,&
-          & MPI_COMM_WORLD,info)
+          & MPI_COMM_RAMSES,info)
      call MPI_ALLREDUCE(ekin_loc,ekin_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,&
-          & MPI_COMM_WORLD,info)
+          & MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
      dt_all=dt_loc
@@ -175,6 +176,12 @@ subroutine newdt_fine(ilevel)
   end if
 
   if(hydro)call courant_fine(ilevel)
+
+  if (rambody .and. rbd_limit_dt) then
+     if (dtnew(ilevel) > rbd_max_rms_dt) then
+        dtnew(ilevel) = rbd_max_rms_dt
+     end if
+  end if
 
 111 format('   Entering newdt_fine for level ',I2)
 

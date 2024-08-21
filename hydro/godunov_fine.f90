@@ -238,6 +238,7 @@ subroutine add_gravity_source_terms(ilevel)
   use amr_commons
   use hydro_commons
   use poisson_commons
+  use rbd_commons
   implicit none
   integer::ilevel
   !--------------------------------------------------------------------------
@@ -248,41 +249,112 @@ subroutine add_gravity_source_terms(ilevel)
   integer::i,ind,iskip,ind_cell
   real(dp)::d,u,v,w,e_kin,e_prim,d_old,fact
   real(dp)::req=0_dp
-  
+  real(dp),dimension(1:3)::fc, xx
+  real(dp),dimension(1:twotondim,1:3)::xc
+  real(dp),dimension(1:3)::skip_loc
+  real(dp)::scale,dx_loc,dx
+  integer::ix,iy,iz
+
   if(numbtot(1,ilevel)==0)return
   if(verbose)write(*,111)ilevel
 
-  ! Add gravity source term at time t with half time step
-  do ind=1,twotondim
-     iskip=ncoarse+(ind-1)*ngridmax
-     do i=1,active(ilevel)%ngrid
-        ind_cell=active(ilevel)%igrid(i)+iskip
-        d=max(unew(ind_cell,1),smallr)
-        u=0; v=0; w=0
-        if(ndim>0)u=unew(ind_cell,2)/d
-        if(ndim>1)v=unew(ind_cell,3)/d
-        if(ndim>2)w=unew(ind_cell,4)/d
-        e_kin=0.5d0*d*(u**2+v**2+w**2)
-        e_prim=unew(ind_cell,ndim+2)-e_kin
-        d_old=max(uold(ind_cell,1),smallr)
-        if(strict_equilibrium>0)req=rho_eq(ind_cell)
-        fact=(d_old-req)/d*0.5d0*dtnew(ilevel)
-        if(ndim>0)then
-           u=u+f(ind_cell,1)*fact
-           unew(ind_cell,2)=d*u
-        endif
-        if(ndim>1)then
-           v=v+f(ind_cell,2)*fact
-           unew(ind_cell,3)=d*v
-        end if
-        if(ndim>2)then
-           w=w+f(ind_cell,3)*fact
-           unew(ind_cell,4)=d*w
-        endif
-        e_kin=0.5d0*d*(u**2+v**2+w**2)
-        unew(ind_cell,ndim+2)=e_prim+e_kin
+  ! We need the precise position of every cell in Rambody
+  ! so we separate it from the traditional calculations
+  if (rambody .and. rbd_nbody6_force) then
+     nx_loc=(icoarse_max-icoarse_min+1)
+     scale=boxlen/dble(nx_loc)
+     dx_loc=dx*scale
+     dx=0.5D0**ilevel
+     
+     skip_loc=(/0.0d0,0.0d0,0.0d0/)
+     if(ndim>0)skip_loc(1)=dble(icoarse_min)
+     if(ndim>1)skip_loc(2)=dble(jcoarse_min)
+     if(ndim>2)skip_loc(3)=dble(kcoarse_min)
+     
+     ! Add gravity source term at time t with half time step
+     do ind=1,twotondim
+        iskip=ncoarse+(ind-1)*ngridmax
+
+        iz=(ind-1)/4
+        iy=(ind-1-4*iz)/2
+        ix=(ind-1-2*iy-4*iz)
+        if(ndim>0)xc(ind,1)=(dble(ix)-0.5D0)*dx
+        if(ndim>1)xc(ind,2)=(dble(iy)-0.5D0)*dx
+        if(ndim>2)xc(ind,3)=(dble(iz)-0.5D0)*dx
+        
+        do i=1,active(ilevel)%ngrid
+           ind_cell=active(ilevel)%igrid(i)+iskip
+           d=max(unew(ind_cell,1),smallr)
+           u=0.0; v=0.0; w=0.0
+           if(ndim>0)u=unew(ind_cell,2)/d
+           if(ndim>1)v=unew(ind_cell,3)/d
+           if(ndim>2)w=unew(ind_cell,4)/d
+           
+           ! Rambody
+           fc = 0.0
+           xx(:)=xg(active(ilevel)%igrid(i),:)+xc(ind,:)
+
+           ! Rescale position from code units to user units
+           xx(:)=(xx(:)-skip_loc(:))*scale
+
+           call timer('rbd_force', 'start')
+           call rbd_get_force_contribution(xx, fc)
+           call timer('hydro - godunov', 'start')
+           
+           e_kin=0.5*d*(u**2+v**2+w**2)
+           e_prim=unew(ind_cell,ndim+2)-e_kin
+           d_old=max(uold(ind_cell,1),smallr)
+           fact=d_old/d*0.5*dtnew(ilevel)
+           if(ndim>0)then
+              u=u+(fc(1)+f(ind_cell,1))*fact
+              unew(ind_cell,2)=d*u
+           endif
+           if(ndim>1)then
+              v=v+(fc(2)+f(ind_cell,2))*fact
+              unew(ind_cell,3)=d*v
+           end if
+           if(ndim>2)then
+              w=w+(fc(3)+f(ind_cell,3))*fact
+              unew(ind_cell,4)=d*w
+           endif
+           e_kin=0.5*d*(u**2+v**2+w**2)
+           unew(ind_cell,ndim+2)=e_prim+e_kin
+        end do
      end do
-  end do
+  else
+     ! Add gravity source term at time t with half time step
+     do ind=1,twotondim
+        iskip=ncoarse+(ind-1)*ngridmax
+        do i=1,active(ilevel)%ngrid
+           ind_cell=active(ilevel)%igrid(i)+iskip
+           d=max(unew(ind_cell,1),smallr)
+           u=0.0; v=0.0; w=0.0
+           if(ndim>0)u=unew(ind_cell,2)/d
+           if(ndim>1)v=unew(ind_cell,3)/d
+           if(ndim>2)w=unew(ind_cell,4)/d
+           
+           e_kin=0.5*d*(u**2+v**2+w**2)
+           e_prim=unew(ind_cell,ndim+2)-e_kin
+           d_old=max(uold(ind_cell,1),smallr)
+           fact=d_old/d*0.5*dtnew(ilevel)
+           if(ndim>0)then
+              u=u+f(ind_cell,1)*fact
+              unew(ind_cell,2)=d*u
+           endif
+           if(ndim>1)then
+              v=v+f(ind_cell,2)*fact
+              unew(ind_cell,3)=d*v
+           end if
+           if(ndim>2)then
+              w=w+f(ind_cell,3)*fact
+              unew(ind_cell,4)=d*w
+           endif
+           e_kin=0.5*d*(u**2+v**2+w**2)
+           unew(ind_cell,ndim+2)=e_prim+e_kin
+        end do
+     end do
+
+  end if
 
 111 format('   Entering add_gravity_source_terms for level ',i2)
 
