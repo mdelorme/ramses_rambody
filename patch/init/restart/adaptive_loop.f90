@@ -161,7 +161,7 @@ subroutine adaptive_loop
      tt2=MPI_WTIME()
      if(mod(nstep_coarse,ncontrol)==0)then
         call getmem(real_mem)
-        call MPI_ALLREDUCE(real_mem,real_mem_tot,1,MPI_REAL,MPI_MAX,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(real_mem,real_mem_tot,1,MPI_REAL,MPI_MAX,MPI_COMM_RAMSES,info)
         if(myid==1)then
            write(*,*)'Time elapsed since last coarse step:',tt2-tt1
            call writemem(real_mem_tot)

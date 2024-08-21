@@ -328,7 +328,7 @@ module hints
       return
     endif
 
-    call mpi_comm_rank(MPI_COMM_WORLD,rank,ierr)
+    call mpi_comm_rank(MPI_COMM_RAMSES,rank,ierr)
 
     if(rank==0) then
       write(*,'("--------------------------------------------------------------------------------------")')

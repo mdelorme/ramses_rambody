@@ -198,10 +198,10 @@ subroutine load_balance
      comm_buffin(ilevel,2)=numbl(myid,ilevel)
      comm_buffin(ilevel,3)=numbl(myid,ilevel)
   end do
-  call MPI_ALLREDUCE(comm_buffin(1,1),comm_buffout(1,1),nlevelmax,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(comm_buffin(1,2),comm_buffout(1,2),nlevelmax,MPI_INTEGER,MPI_MIN,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(comm_buffin(1,3),comm_buffout(1,3),nlevelmax,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(used_mem        ,used_mem_tot     ,1        ,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(comm_buffin(1,1),comm_buffout(1,1),nlevelmax,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(comm_buffin(1,2),comm_buffout(1,2),nlevelmax,MPI_INTEGER,MPI_MIN,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(comm_buffin(1,3),comm_buffout(1,3),nlevelmax,MPI_INTEGER,MPI_MAX,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(used_mem        ,used_mem_tot     ,1        ,MPI_INTEGER,MPI_MAX,MPI_COMM_RAMSES,info)
   do ilevel=1,nlevelmax
      numbtot(1,ilevel)=comm_buffout(ilevel,1)
      numbtot(2,ilevel)=comm_buffout(ilevel,2)
@@ -473,7 +473,7 @@ subroutine cmp_new_cpu_map
      cost_loc(myid+(isub-1)*ncpu) = dble(npart_sub(isub))
   end do
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(cost_loc,cost_old,ndomain,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(cost_loc,cost_old,ndomain,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
   incost_tot = 0D0
   incost_old(0) = 0D0
@@ -519,12 +519,12 @@ subroutine cmp_new_cpu_map
 #ifdef QUADHILBERT
   bigdbl= real(bound_key_loc,kind=8)
   bigtmp= 0.0d0
-  call MPI_ALLREDUCE(bigdbl,bigtmp,ndomain+1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(bigdbl,bigtmp,ndomain+1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   ! if call to mpi_sum with mpi_type=mpi_real16 is supported by mpi_allreduce we can do:
-  !call MPI_ALLREDUCE(bound_key_loc,bound_key2,ndomain+1,MPI_REAL16,MPI_SUM,MPI_COMM_WORLD,info)
+  !call MPI_ALLREDUCE(bound_key_loc,bound_key2,ndomain+1,MPI_REAL16,MPI_SUM,MPI_COMM_RAMSES,info)
   bound_key2         = real(bigtmp,kind=qdp)
 #else
-  call MPI_ALLREDUCE(bound_key_loc,bound_key2,ndomain+1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(bound_key_loc,bound_key2,ndomain+1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
 #endif
   bound_key2(0)      =order_all_min
@@ -774,7 +774,7 @@ subroutine cmp_ordering(x,order,nn)
      if(bit_length==32) then
         write(*,*)'Error in cmp_minmaxorder'
 #ifndef WITHOUTMPI
-        call MPI_ABORT(MPI_COMM_WORLD,1,info)
+        call MPI_ABORT(MPI_COMM_RAMSES,1,info)
 #else
         stop
 #endif
@@ -922,7 +922,7 @@ subroutine cmp_minmaxorder(x,order_min,order_max,dx,nn)
      if(bit_length==32) then
         write(*,*)'Error in cmp_minmaxorder'
 #ifndef WITHOUTMPI
-        call MPI_ABORT(MPI_COMM_WORLD,1,info)
+        call MPI_ABORT(MPI_COMM_RAMSES,1,info)
 #else
         stop
 #endif

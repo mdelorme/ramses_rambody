@@ -11,8 +11,8 @@ extern "C" int aton_init_gpu_(const int* allow_gpu_overload) {
   fprintf(stderr, "init_cuda_device\n");
 
   int mpi_size, mpi_rank;
-  MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
-  MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+  MPI_Comm_size(MPI_COMM_RAMSES, &mpi_size);
+  MPI_Comm_rank(MPI_COMM_RAMSES, &mpi_rank);
   int gpu_device_count;
   cudaGetDeviceCount(&gpu_device_count);
 
@@ -26,7 +26,7 @@ extern "C" int aton_init_gpu_(const int* allow_gpu_overload) {
   
   MPI_Allgather(my_hostname, HOSTNAME_BUFFER_SIZE, MPI_CHAR,
 		all_hostnames, HOSTNAME_BUFFER_SIZE, MPI_CHAR,
-		MPI_COMM_WORLD);
+		MPI_COMM_RAMSES);
 
   if (mpi_rank == 0) {
     fprintf(stderr, "mpi_size = %d\n", mpi_size);

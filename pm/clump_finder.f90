@@ -88,9 +88,9 @@ subroutine clump_finder(create_output,keep_alive)
   ntest_cpu(myid)=ntest
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-  call MPI_ALLREDUCE(ntest_cpu,ntest_cpu_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(ntest_cpu,ntest_cpu_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-  call MPI_ALLREDUCE(ntest_cpu,ntest_cpu_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(ntest_cpu,ntest_cpu_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
   ntest_cpu(1)=ntest_cpu_all(1)
 #endif
@@ -157,13 +157,13 @@ subroutine clump_finder(create_output,keep_alive)
   npeaks_per_cpu=0
   npeaks_per_cpu(myid)=npeaks
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(npeaks_per_cpu,npeaks_per_cpu_tot,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npeaks_per_cpu,npeaks_per_cpu_tot,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   npeaks_per_cpu_tot=npeaks_per_cpu
 #endif
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(npeaks,npeaks_tot,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npeaks,npeaks_tot,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   npeaks_tot=npeaks
@@ -231,11 +231,11 @@ subroutine clump_finder(create_output,keep_alive)
      nzero_tot=nzero
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-     call MPI_ALLREDUCE(nmove_tot,nmove_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-     call MPI_ALLREDUCE(nzero_tot,nzero_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+     call MPI_ALLREDUCE(nmove_tot,nmove_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+     call MPI_ALLREDUCE(nzero_tot,nzero_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-     call MPI_ALLREDUCE(nmove_tot,nmove_all,1,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
-     call MPI_ALLREDUCE(nzero_tot,nzero_all,1,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+     call MPI_ALLREDUCE(nmove_tot,nmove_all,1,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
+     call MPI_ALLREDUCE(nzero_tot,nzero_all,1,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
      nmove_tot=nmove_all
      nzero_tot=nzero_all
@@ -299,7 +299,7 @@ subroutine clump_finder(create_output,keep_alive)
      endif
 
 #ifndef WITHOUTMPI
-     call MPI_ALLREDUCE(verbose,verbose_all,1,MPI_LOGICAL,MPI_LOR,MPI_COMM_WORLD,info)
+     call MPI_ALLREDUCE(verbose,verbose_all,1,MPI_LOGICAL,MPI_LOR,MPI_COMM_RAMSES,info)
 #else
      verbose_all=verbose
 #endif

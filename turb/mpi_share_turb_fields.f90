@@ -28,15 +28,15 @@ subroutine mpi_share_turb_fields(include_last)
    ! Share afield_last and afield_next
    if (include_last) then
       call MPI_BCAST(afield_last, message_length, MPI_REAL_DP, 0, &
-                     & MPI_COMM_WORLD, ierr)
+                     & MPI_COMM_RAMSES, ierr)
       call MPI_BCAST(turb_last_time, 1, MPI_REAL_DP, 0, &
-                     & MPI_COMM_WORLD, ierr)
+                     & MPI_COMM_RAMSES, ierr)
    end if
    
    call MPI_BCAST(afield_next, message_length, MPI_REAL_DP, 0, &
-                  & MPI_COMM_WORLD, ierr)
+                  & MPI_COMM_RAMSES, ierr)
    call MPI_BCAST(turb_next_time, 1, MPI_REAL_DP, 0, &
-                  & MPI_COMM_WORLD, ierr)
+                  & MPI_COMM_RAMSES, ierr)
 
 end subroutine mpi_share_turb_fields
 #endif

@@ -105,7 +105,7 @@ subroutine courant_fine(ilevel)
   comm_buffin(3)=momy_loc
   comm_buffin(4)=momz_loc
   call MPI_ALLREDUCE(comm_buffin,comm_buffout,4,MPI_DOUBLE_PRECISION,MPI_SUM,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
   mass_all=comm_buffout(1)
   momx_all=comm_buffout(2)
   momy_all=comm_buffout(3)
@@ -114,18 +114,18 @@ subroutine courant_fine(ilevel)
 
  comm_buffin(1)=e_loc
   call MPI_ALLREDUCE(comm_buffin,comm_buffout,1,MPI_DOUBLE_PRECISION,MPI_SUM,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
   e_all=comm_buffout(1)
 
 
   mom_all=sqrt(momx_all**2+momy_all**2+momz_all**2)
 
   call MPI_ALLREDUCE(dt_loc,dt_all,1,MPI_DOUBLE_PRECISION,MPI_MIN,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
 
   comm_buffin(1)=gam_loc
   call MPI_ALLREDUCE(comm_buffin,comm_buffout,1,MPI_DOUBLE_PRECISION,MPI_MAX,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
   gam_all=comm_buffout(1)
 
 #endif

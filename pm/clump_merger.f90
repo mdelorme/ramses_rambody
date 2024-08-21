@@ -175,7 +175,7 @@ subroutine compute_clump_properties(xx)
   tot_mass=sum(clump_mass(1:npeaks))
 
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(tot_mass,tot_mass_tot,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(tot_mass,tot_mass_tot,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   tot_mass=tot_mass_tot
 #endif
 
@@ -290,7 +290,7 @@ subroutine write_clump_properties(to_file)
   if(ivar_clump==0 .or. ivar_clump==-1)then
      particle_mass=MINVAL(mp, MASK=(mp > 0))
 #ifndef WITHOUTMPI
-     call MPI_ALLREDUCE(particle_mass,particle_mass_tot,1,MPI_DOUBLE_PRECISION,MPI_MIN,MPI_COMM_WORLD,info)
+     call MPI_ALLREDUCE(particle_mass,particle_mass_tot,1,MPI_DOUBLE_PRECISION,MPI_MIN,MPI_COMM_RAMSES,info)
      particle_mass=particle_mass_tot
 #endif
   else
@@ -328,7 +328,7 @@ subroutine write_clump_properties(to_file)
      if(IOGROUPSIZE>0) then
         if (mod(myid-1,IOGROUPSIZE)/=0) then
            call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-                & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+                & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
         end if
      endif
 #endif
@@ -463,15 +463,15 @@ subroutine write_clump_properties(to_file)
         if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
            dummy_io=1
            call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-                & MPI_COMM_WORLD,info2)
+                & MPI_COMM_RAMSES,info2)
         end if
      endif
 #endif
 
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(n_rel,n_rel_tot,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(n_rel,n_rel_tot,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
   n_rel=n_rel_tot
-  call MPI_ALLREDUCE(rel_mass,rel_mass_tot,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(rel_mass,rel_mass_tot,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   rel_mass=rel_mass_tot
 #else
   n_rel_tot = n_rel
@@ -611,7 +611,7 @@ subroutine merge_clumps(action)
         call boundary_peak_int(new_peak)
         iter=iter+1
 #ifndef WITHOUTMPI
-        call MPI_ALLREDUCE(nmove,nmove_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(nmove,nmove_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
         nmove=nmove_all
 #endif
         if(verbose)write(*,*)'niter=',iter,'nmove=',nmove
@@ -676,9 +676,9 @@ subroutine merge_clumps(action)
      end do
 
 #ifndef WITHOUTMPI
-     call MPI_ALLREDUCE(nzero,nzero_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+     call MPI_ALLREDUCE(nzero,nzero_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
      nzero=nzero_all
-     call MPI_ALLREDUCE(nsurvive,nsurvive_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+     call MPI_ALLREDUCE(nsurvive,nsurvive_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
      nsurvive=nsurvive_all
 #endif
      if(verbose)write(*,*)'level=',idepth,'nmove=',nzero,'survived=',nsurvive
@@ -689,7 +689,7 @@ subroutine merge_clumps(action)
 
   mergelevel_max=idepth-2 ! last level has no more clumps, also idepth=idepth+1 still happens on last level.
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(mergelevel_max,mergelevel_max_global,1,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(mergelevel_max,mergelevel_max_global,1,MPI_INTEGER,MPI_MAX,MPI_COMM_RAMSES,info)
   mergelevel_max=mergelevel_max_global
 #endif
 
@@ -718,7 +718,7 @@ subroutine merge_clumps(action)
      endif
   end do
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(nsurvive,nsurvive_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(nsurvive,nsurvive_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
   nsurvive=nsurvive_all
 #endif
   if(myid==1)then
@@ -1078,7 +1078,7 @@ subroutine build_peak_communicator
      call get_local_peak_cpu(ipeak,icpu)
      peak_send_cnt(icpu)=peak_send_cnt(icpu)+1
   end do
-  call MPI_ALLTOALL(peak_send_cnt,1,MPI_INTEGER,peak_recv_cnt,1,MPI_INTEGER,MPI_COMM_WORLD,info)
+  call MPI_ALLTOALL(peak_send_cnt,1,MPI_INTEGER,peak_recv_cnt,1,MPI_INTEGER,MPI_COMM_RAMSES,info)
 
   peak_send_oft=0; peak_send_tot=0
   peak_recv_oft=0; peak_recv_tot=0
@@ -1103,7 +1103,7 @@ subroutine build_peak_communicator
      peak_send_buf(peak_send_oft(icpu)+ipeak_alltoall(icpu))=gkey(ipeak)
   end do
   call MPI_ALLTOALLV(peak_send_buf,peak_send_cnt,peak_send_oft,MPI_INTEGER, &
-       &             peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_INTEGER,MPI_COMM_WORLD,info)
+       &             peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_INTEGER,MPI_COMM_RAMSES,info)
 #endif
 end subroutine build_peak_communicator
 !################################################################
@@ -1131,7 +1131,7 @@ subroutine virtual_peak_int(xx,action)
      int_peak_send_buf(peak_send_oft(icpu)+ipeak_alltoall(icpu))=xx(ipeak)
   end do
   call MPI_ALLTOALLV(int_peak_send_buf,peak_send_cnt,peak_send_oft,MPI_INTEGER, &
-       &             int_peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_INTEGER,MPI_COMM_WORLD,info)
+       &             int_peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_INTEGER,MPI_COMM_RAMSES,info)
   select case (action)
   case('sum')
      do j=1,peak_recv_tot
@@ -1177,7 +1177,7 @@ subroutine virtual_peak_dp(xx,action)
      dp_peak_send_buf(peak_send_oft(icpu)+ipeak_alltoall(icpu))=xx(ipeak)
   end do
   call MPI_ALLTOALLV(dp_peak_send_buf,peak_send_cnt,peak_send_oft,MPI_DOUBLE_PRECISION, &
-       &             dp_peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_DOUBLE_PRECISION,MPI_COMM_WORLD,info)
+       &             dp_peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_DOUBLE_PRECISION,MPI_COMM_RAMSES,info)
   select case (action)
   case('sum')
      do j=1,peak_recv_tot
@@ -1226,9 +1226,9 @@ subroutine virtual_saddle_max
      int_peak_send_buf(peak_send_oft(icpu)+ipeak_alltoall(icpu))=sparse_saddle_dens%maxloc(ipeak)
   end do
   call MPI_ALLTOALLV(dp_peak_send_buf,peak_send_cnt,peak_send_oft,MPI_DOUBLE_PRECISION, &
-       &             dp_peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_DOUBLE_PRECISION,MPI_COMM_WORLD,info)
+       &             dp_peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_DOUBLE_PRECISION,MPI_COMM_RAMSES,info)
   call MPI_ALLTOALLV(int_peak_send_buf,peak_send_cnt,peak_send_oft,MPI_INTEGER, &
-       &             int_peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_INTEGER,MPI_COMM_WORLD,info)
+       &             int_peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_INTEGER,MPI_COMM_RAMSES,info)
   do j=1,peak_recv_tot
      ipeak=peak_recv_buf(j)-ipeak_start(myid)
      if(sparse_saddle_dens%maxval(ipeak)<dp_peak_recv_buf(j))then
@@ -1263,7 +1263,7 @@ subroutine boundary_peak_int(xx)
      int_peak_recv_buf(j)=xx(ipeak)
   end do
   call MPI_ALLTOALLV(int_peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_INTEGER, &
-       &             int_peak_send_buf,peak_send_cnt,peak_send_oft,MPI_INTEGER,MPI_COMM_WORLD,info)
+       &             int_peak_send_buf,peak_send_cnt,peak_send_oft,MPI_INTEGER,MPI_COMM_RAMSES,info)
   ipeak_alltoall=0
   do ipeak=npeaks+1,hfree-1
      call get_local_peak_cpu(ipeak,icpu)
@@ -1295,7 +1295,7 @@ subroutine boundary_peak_dp(xx)
      dp_peak_recv_buf(j)=xx(ipeak)
   end do
   call MPI_ALLTOALLV(dp_peak_recv_buf,peak_recv_cnt,peak_recv_oft,MPI_DOUBLE_PRECISION, &
-       &             dp_peak_send_buf,peak_send_cnt,peak_send_oft,MPI_DOUBLE_PRECISION,MPI_COMM_WORLD,info)
+       &             dp_peak_send_buf,peak_send_cnt,peak_send_oft,MPI_DOUBLE_PRECISION,MPI_COMM_RAMSES,info)
   ipeak_alltoall=0
   do ipeak=npeaks+1,hfree-1
      call get_local_peak_cpu(ipeak,icpu)
@@ -1351,7 +1351,7 @@ subroutine write_clump_map
      if(IOGROUPSIZE>0) then
         if (mod(myid-1,IOGROUPSIZE)/=0) then
            call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-                & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+                & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
         end if
      endif
 #endif
@@ -1386,7 +1386,7 @@ subroutine write_clump_map
         if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
            dummy_io=1
            call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-                & MPI_COMM_WORLD,info2)
+                & MPI_COMM_RAMSES,info2)
         end if
      endif
 #endif
@@ -1419,10 +1419,10 @@ subroutine analyze_peak_memory
   sparse_all=0
   sparse_all(myid)=sparse_saddle_dens%used
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(npeak_all,npeak_tot,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(coll_all,coll_tot,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(hfree_all,hfree_tot,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(sparse_all,sparse_tot,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npeak_all,npeak_tot,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(coll_all,coll_tot,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(hfree_all,hfree_tot,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(sparse_all,sparse_tot,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
   npeak_tot=npeak_all
   coll_tot=coll_all

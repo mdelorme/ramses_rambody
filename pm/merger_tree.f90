@@ -427,13 +427,13 @@ subroutine process_progenitor_data()
   ! first the actual progenitors
   allocate(local_owners_info(1:nprogs))     ! progenitor owners array, local to each cpu
   local_owners_info = prog_owner
-  call MPI_ALLREDUCE(local_owners_info, prog_owner, nprogs, MPI_INTEGER, MPI_MAX, MPI_COMM_WORLD, i)
+  call MPI_ALLREDUCE(local_owners_info, prog_owner, nprogs, MPI_INTEGER, MPI_MAX, MPI_COMM_RAMSES, i)
   deallocate(local_owners_info)
 
   ! then the past progenitors
   allocate(local_owners_info(1:npastprogs)) ! progenitor owners array, local to each cpu
   local_owners_info = pmprogs_owner(1:npastprogs)
-  call MPI_ALLREDUCE(local_owners_info, pmprogs_owner, npastprogs, MPI_INTEGER, MPI_MAX, MPI_COMM_WORLD, i)
+  call MPI_ALLREDUCE(local_owners_info, pmprogs_owner, npastprogs, MPI_INTEGER, MPI_MAX, MPI_COMM_RAMSES, i)
   deallocate(local_owners_info)
 #endif
 
@@ -511,7 +511,7 @@ subroutine create_prog_desc_links()
   enddo
 
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(MPI_IN_PLACE, i, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD, ipart)
+  call MPI_ALLREDUCE(MPI_IN_PLACE, i, 1, MPI_INT, MPI_SUM, MPI_COMM_RAMSES, ipart)
 #endif
 
   if (myid == 1) then 
@@ -560,7 +560,7 @@ subroutine create_prog_desc_links()
   ! Share infos across processors
   !---------------------------------
 
-  call MPI_ALLTOALL(sendcount, 1, MPI_INT, receivecount, 1, MPI_INT, MPI_COMM_WORLD, i)
+  call MPI_ALLTOALL(sendcount, 1, MPI_INT, receivecount, 1, MPI_INT, MPI_COMM_RAMSES, i)
 
 
  
@@ -607,7 +607,7 @@ subroutine create_prog_desc_links()
   enddo
 
   call MPI_ALLTOALLV(sendbuf, sendcount, send_displ, MPI_INT, &
-    recvbuf, receivecount, rec_displ, MPI_INT, MPI_COMM_WORLD, i)
+    recvbuf, receivecount, rec_displ, MPI_INT, MPI_COMM_RAMSES, i)
 
 
 
@@ -666,7 +666,7 @@ subroutine create_prog_desc_links()
   ! Share infos across processors
   !---------------------------------
 
-  call MPI_ALLTOALL(sendcount2, 1, MPI_INT, receivecount2, 1, MPI_INT, MPI_COMM_WORLD, i)
+  call MPI_ALLTOALL(sendcount2, 1, MPI_INT, receivecount2, 1, MPI_INT, MPI_COMM_RAMSES, i)
 
 
 
@@ -708,7 +708,7 @@ subroutine create_prog_desc_links()
   enddo
 
   call MPI_ALLTOALLV(sendbuf2, sendcount2, send_displ, MPI_INT, &
-    recvbuf2, receivecount2, rec_displ, MPI_INT, MPI_COMM_WORLD, i)
+    recvbuf2, receivecount2, rec_displ, MPI_INT, MPI_COMM_RAMSES, i)
 
 
 
@@ -869,7 +869,7 @@ subroutine make_trees()
     ! get junk results. Unlike with descendants, keeping only main_desc of the owner 
     ! CPU is safe, as all CPUs that have tracer particles of a progenitor have full 
     ! data of that progenitor.
-    call MPI_ALLREDUCE(MPI_IN_PLACE, main_desc, nprogs, MPI_INT, MPI_MAX, MPI_COMM_WORLD, i)
+    call MPI_ALLREDUCE(MPI_IN_PLACE, main_desc, nprogs, MPI_INT, MPI_MAX, MPI_COMM_RAMSES, i)
 #endif
 
 
@@ -966,7 +966,7 @@ subroutine make_trees()
 
 #ifndef WITHOUTMPI
     ! check globally whether you need to reiterate treebuilding loop
-    call MPI_ALLREDUCE(MPI_IN_PLACE, reiter, 1, MPI_LOGICAL, MPI_LOR, MPI_COMM_WORLD, i)
+    call MPI_ALLREDUCE(MPI_IN_PLACE, reiter, 1, MPI_LOGICAL, MPI_LOR, MPI_COMM_RAMSES, i)
 #endif
 
     loopcounter = loopcounter + 1
@@ -1024,7 +1024,7 @@ subroutine make_trees()
 
 #ifndef WITHOUTMPI
   ! check globally whether you have work to do; Otherwise, MPI will deadlock.
-  call MPI_ALLREDUCE(MPI_IN_PLACE, reiter, 1, MPI_LOGICAL, MPI_LOR, MPI_COMM_WORLD, i)
+  call MPI_ALLREDUCE(MPI_IN_PLACE, reiter, 1, MPI_LOGICAL, MPI_LOR, MPI_COMM_RAMSES, i)
 #endif
 
 
@@ -1593,7 +1593,7 @@ subroutine make_trees()
       do iprog = 1, nprogs
         if (prog_owner(iprog)/=myid) main_desc(iprog) = 0
       enddo
-      call MPI_ALLREDUCE(MPI_IN_PLACE, main_desc, nprogs, MPI_INT, MPI_MAX, MPI_COMM_WORLD, i)
+      call MPI_ALLREDUCE(MPI_IN_PLACE, main_desc, nprogs, MPI_INT, MPI_MAX, MPI_COMM_RAMSES, i)
 #endif
 
       ! revert peakshift
@@ -1951,7 +1951,7 @@ subroutine read_progenitor_data()
   !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   call MPI_ALLGATHER(nprogs_to_read, 1, MPI_INT, &
-      recvcount, 1, MPI_INT, MPI_COMM_WORLD, mpi_err)
+      recvcount, 1, MPI_INT, MPI_COMM_RAMSES, mpi_err)
   nprogdatalen = sum(recvcount)
 
   displacements=0
@@ -1961,20 +1961,20 @@ subroutine read_progenitor_data()
 
   allocate(buffer_int_IDs_all(1:nprogdatalen))
   call MPI_ALLGATHERV(read_buffer_int_IDs, recvcount(myid), MPI_INT, &
-      buffer_int_IDs_all, recvcount, displacements, MPI_INT, MPI_COMM_WORLD, mpi_err)
+      buffer_int_IDs_all, recvcount, displacements, MPI_INT, MPI_COMM_RAMSES, mpi_err)
 
   allocate(buffer_int_nparts_all(1:nprogdatalen))
   call MPI_ALLGATHERV(read_buffer_int_nparts, recvcount(myid), MPI_INT, &
-      buffer_int_nparts_all, recvcount, displacements, MPI_INT, MPI_COMM_WORLD, mpi_err)
+      buffer_int_nparts_all, recvcount, displacements, MPI_INT, MPI_COMM_RAMSES, mpi_err)
 
   allocate(buffer_mass_all(1:nprogdatalen))
   call MPI_ALLGATHERV(read_buffer_mass, recvcount(myid), MPI_DOUBLE, &
-    buffer_mass_all, recvcount, displacements,  MPI_DOUBLE, MPI_COMM_WORLD, mpi_err)
+    buffer_mass_all, recvcount, displacements,  MPI_DOUBLE, MPI_COMM_RAMSES, mpi_err)
 
   if (make_mock_galaxies) then
     allocate(buffer_mpeak_all(1:nprogdatalen))
     call MPI_ALLGATHERV(read_buffer_mpeak, recvcount(myid), MPI_DOUBLE, &
-        buffer_mpeak_all, recvcount, displacements, MPI_DOUBLE, MPI_COMM_WORLD, mpi_err)
+        buffer_mpeak_all, recvcount, displacements, MPI_DOUBLE, MPI_COMM_RAMSES, mpi_err)
   else
     ! safety measure
     allocate(buffer_mpeak_all(1:1))
@@ -1983,7 +1983,7 @@ subroutine read_progenitor_data()
 
 
   call MPI_ALLGATHER(partcount_to_read, 1, MPI_INT, &
-      recvcount, 1, MPI_INT, MPI_COMM_WORLD, mpi_err)
+      recvcount, 1, MPI_INT, MPI_COMM_RAMSES, mpi_err)
   partdatalen = sum(recvcount)
 
   displacements=0
@@ -1994,10 +1994,10 @@ subroutine read_progenitor_data()
   allocate(buffer_int8_parts_all(1:partdatalen))
 #ifdef LONGINT
   call MPI_ALLGATHERV(read_buffer_int8_parts, recvcount(myid), MPI_INTEGER8,&
-      buffer_int8_parts_all, recvcount, displacements, MPI_INTEGER8, MPI_COMM_WORLD, mpi_err)
+      buffer_int8_parts_all, recvcount, displacements, MPI_INTEGER8, MPI_COMM_RAMSES, mpi_err)
 #else
   call MPI_ALLGATHERV(read_buffer_int8_parts, recvcount(myid), MPI_INT, &
-      buffer_int8_parts_all, recvcount, displacements, MPI_INT, MPI_COMM_WORLD, mpi_err)
+      buffer_int8_parts_all, recvcount, displacements, MPI_INT, MPI_COMM_RAMSES, mpi_err)
 #endif
 
   deallocate(read_buffer_int_IDs)
@@ -2153,7 +2153,7 @@ subroutine read_progenitor_data()
   !-------------------------------------------
 
   call MPI_ALLGATHER(npastprogs, 1, MPI_INT, recvcount, 1, &
-      MPI_INT, MPI_COMM_WORLD, mpi_err)
+      MPI_INT, MPI_COMM_RAMSES, mpi_err)
   npastprogs = sum(recvcount)
 
   ! overestimate size to fit new ones if necessary
@@ -2168,37 +2168,37 @@ subroutine read_progenitor_data()
   allocate(pmprogs(1:npastprogs_max))
   pmprogs = 0 
   call MPI_ALLGATHERV(read_buffer_int_IDs, recvcount(myid), MPI_INT, &
-      pmprogs, recvcount, displacements, MPI_INT, MPI_COMM_WORLD, mpi_err)
+      pmprogs, recvcount, displacements, MPI_INT, MPI_COMM_RAMSES, mpi_err)
 
   ! Time at which past progenitors have been merged (= ifout at merging time)
   allocate(pmprogs_t(1:npastprogs_max))
   pmprogs_t = 0
   call MPI_ALLGATHERV(read_buffer_int_pasttimes, recvcount(myid), MPI_INT, &
-      pmprogs_t, recvcount, displacements, MPI_INT, MPI_COMM_WORLD, mpi_err)
+      pmprogs_t, recvcount, displacements, MPI_INT, MPI_COMM_RAMSES, mpi_err)
 
   ! Past Merged Progenitors' galaxy particles
   allocate(pmprogs_galaxy(1:npastprogs_max))
   pmprogs_galaxy = 0
 #ifdef LONGINT
   call MPI_ALLGATHERV(read_buffer_int8_parts, recvcount(myid), MPI_INTEGER8, &
-      pmprogs_galaxy, recvcount, displacements, MPI_INTEGER8, MPI_COMM_WORLD, mpi_err)
+      pmprogs_galaxy, recvcount, displacements, MPI_INTEGER8, MPI_COMM_RAMSES, mpi_err)
 #else
   call MPI_ALLGATHERV(read_buffer_int8_parts, recvcount(myid), MPI_INT, &
-      pmprogs_galaxy, recvcount, displacements, MPI_INT, MPI_COMM_WORLD, mpi_err)
+      pmprogs_galaxy, recvcount, displacements, MPI_INT, MPI_COMM_RAMSES, mpi_err)
 #endif
 
   ! past merged progenitor mass
   allocate(pmprogs_mass(1:npastprogs_max))
   pmprogs_mass = 0
   call MPI_ALLGATHERV(read_buffer_mass, recvcount(myid), MPI_DOUBLE,&
-    pmprogs_mass, recvcount, displacements, MPI_DOUBLE, MPI_COMM_WORLD, mpi_err)
+    pmprogs_mass, recvcount, displacements, MPI_DOUBLE, MPI_COMM_RAMSES, mpi_err)
 
   if (make_mock_galaxies) then
     allocate(pmprogs_mpeak(1:npastprogs_max))
     pmprogs_mpeak = 0
 
     call MPI_ALLGATHERV(read_buffer_mpeak, recvcount(myid), MPI_DOUBLE, &
-        pmprogs_mpeak, recvcount, displacements, MPI_DOUBLE, MPI_COMM_WORLD, mpi_err)
+        pmprogs_mpeak, recvcount, displacements, MPI_DOUBLE, MPI_COMM_RAMSES, mpi_err)
   endif
 
   ! Current owner Merged Progenitors' galaxy particles
@@ -2294,7 +2294,7 @@ subroutine read_progenitor_data()
 
 #ifndef WITHOUTMPI
   buf = (/nprogs, progcount_to_read, progpartcount_to_read, npastprogs/)
-  call MPI_BCAST(buf, 4, MPI_INTEGER, 0, MPI_COMM_WORLD, mpi_err)
+  call MPI_BCAST(buf, 4, MPI_INTEGER, 0, MPI_COMM_RAMSES, mpi_err)
   nprogs = buf(1)
   progcount_to_read = buf(2)
   progpartcount_to_read = buf(3)
@@ -2370,7 +2370,7 @@ subroutine read_progenitor_data()
 
 
 #ifndef WITHOUTMPI
-    call MPI_FILE_OPEN(MPI_COMM_WORLD, fileloc, &
+    call MPI_FILE_OPEN(MPI_COMM_RAMSES, fileloc, &
         MPI_MODE_RDONLY, MPI_INFO_NULL,filehandle, mpi_err)
 
     call MPI_FILE_READ(filehandle, read_buffer_int_IDs, &
@@ -2505,7 +2505,7 @@ subroutine read_progenitor_data()
     fileloc=TRIM('output_'//TRIM(output_to_string)//'/past_merged_progenitors.dat')
 
 #ifndef WITHOUTMPI
-    call MPI_FILE_OPEN(MPI_COMM_WORLD, fileloc, &
+    call MPI_FILE_OPEN(MPI_COMM_RAMSES, fileloc, &
         MPI_MODE_RDONLY, MPI_INFO_NULL,filehandle, mpi_err)
 
     call MPI_FILE_READ(filehandle, pmprogs, &
@@ -2647,7 +2647,7 @@ subroutine write_trees()
 
 
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(MPI_IN_PLACE, printed, nprogs, MPI_LOGICAL, MPI_LOR, MPI_COMM_WORLD, err)
+  call MPI_ALLREDUCE(MPI_IN_PLACE, printed, nprogs, MPI_LOGICAL, MPI_LOR, MPI_COMM_RAMSES, err)
 #endif
 
 
@@ -2827,7 +2827,7 @@ subroutine write_progenitor_data()
 
 #ifndef WITHOUTMPI
   ! Need to call MPI routines even if this CPU has nothing to write!
-  call MPI_FILE_OPEN(MPI_COMM_WORLD, fileloc, MPI_MODE_WRONLY + MPI_MODE_CREATE, &
+  call MPI_FILE_OPEN(MPI_COMM_RAMSES, fileloc, MPI_MODE_WRONLY + MPI_MODE_CREATE, &
       MPI_INFO_NULL, filehandle, mpi_err)
   call MPI_FILE_WRITE_ORDERED(filehandle, progidlist, & 
       ihalo, MPI_INTEGER, state, mpi_err)
@@ -2931,7 +2931,7 @@ subroutine write_progenitor_data()
 #ifndef WITHOUTMPI
   if (npastprogs > 0) then
     call MPI_ALLREDUCE(MPI_IN_PLACE, pmprogs_owner, npastprogs, &
-      MPI_INT, MPI_MIN, MPI_COMM_WORLD, ipeak)
+      MPI_INT, MPI_MIN, MPI_COMM_RAMSES, ipeak)
   endif
 #endif
 
@@ -2981,7 +2981,7 @@ subroutine write_progenitor_data()
   fileloc=TRIM('output_'//TRIM(output_to_string)//'/past_merged_progenitors.dat')
 
 #ifndef WITHOUTMPI
-  call MPI_FILE_OPEN(MPI_COMM_WORLD, fileloc, MPI_MODE_WRONLY + MPI_MODE_CREATE, &
+  call MPI_FILE_OPEN(MPI_COMM_RAMSES, fileloc, MPI_MODE_WRONLY + MPI_MODE_CREATE, &
       MPI_INFO_NULL, filehandle, mpi_err)
 
   call MPI_FILE_WRITE_ORDERED(filehandle, pastproglist, & 
@@ -3058,13 +3058,13 @@ subroutine write_progenitor_data()
 #ifndef WITHOUTMPI
   buf = (/progenitorcount, ihalo, progenitorpartcount_written, npastprogs_all/)
   if (myid == 1) then
-    call MPI_REDUCE(MPI_IN_PLACE, buf, 4, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+    call MPI_REDUCE(MPI_IN_PLACE, buf, 4, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_RAMSES, mpi_err)
     progenitorcount = buf(1)
     ihalo = buf(2)
     progenitorpartcount_written = buf(3)
     npastprogs_all = buf(4)
   else
-    call MPI_REDUCE(buf, buf, 4, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+    call MPI_REDUCE(buf, buf, 4, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_RAMSES, mpi_err)
   endif
 #endif
 
@@ -3274,7 +3274,7 @@ subroutine make_galaxies()
   endif
 
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD, info)
+  call MPI_BARRIER(MPI_COMM_RAMSES, info)
 #endif
 
   conefile = trim(conedir)//'cone_gal_'//trim(istep_str)//'.out'
@@ -3304,7 +3304,7 @@ subroutine make_galaxies()
   if(IOGROUPSIZECONE>0) then
      if (mod(myid-1,IOGROUPSIZECONE)/=0) then
         call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-             & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+             & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
      end if
   endif
 #endif
@@ -3511,7 +3511,7 @@ subroutine make_galaxies()
      if(mod(myid,IOGROUPSIZECONE)/=0 .and.(myid.lt.ncpu))then
         dummy_io=1
         call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-             & MPI_COMM_WORLD,info2)
+             & MPI_COMM_RAMSES,info2)
      end if
   endif
 #endif

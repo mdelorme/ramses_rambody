@@ -88,7 +88,7 @@ subroutine init_time
      if(iresult.eq.0)then
          write(*,*) 'Grackle - error in initialize_chemistry_data'
 #ifndef WITHOUTMPI
-         call MPI_ABORT(MPI_COMM_WORLD,1,info)
+         call MPI_ABORT(MPI_COMM_RAMSES,1,info)
 #else
          stop
 #endif
@@ -168,7 +168,7 @@ subroutine init_time
      if(iresult.eq.0)then
          write(*,*) 'Grackle - error in initialize_chemistry_data'
 #ifndef WITHOUTMPI
-         call MPI_ABORT(MPI_COMM_WORLD,1,info)
+         call MPI_ABORT(MPI_COMM_RAMSES,1,info)
 #else
          stop
 #endif
@@ -335,7 +335,7 @@ subroutine init_file
         if(IOGROUPSIZE>0) then
            if (mod(myid-1,IOGROUPSIZE)/=0) then
               call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-                   & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+                   & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
            end if
         endif
 #endif
@@ -360,7 +360,7 @@ subroutine init_file
            if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
               dummy_io=1
               call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-                   & MPI_COMM_WORLD,info2)
+                   & MPI_COMM_RAMSES,info2)
            end if
         endif
 #endif
@@ -463,7 +463,7 @@ subroutine init_cosmo
            if(IOGROUPSIZE>0) then
               if (mod(myid-1,IOGROUPSIZE)/=0) then
                  call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-                      & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+                      & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
               end if
            endif
 #endif
@@ -489,7 +489,7 @@ subroutine init_cosmo
               if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
                  dummy_io=1
                  call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-                      & MPI_COMM_WORLD,info2)
+                      & MPI_COMM_RAMSES,info2)
               end if
            endif
 #endif

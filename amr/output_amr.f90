@@ -104,7 +104,7 @@ subroutine dump_all
      CLOSE(11)
   endif
 #ifndef WITHOUTMPI
-  if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+  if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
   if(myid==1.and.print_when_io) write(*,*)'End backup info etc.'
 
@@ -112,7 +112,7 @@ subroutine dump_all
   filename=TRIM(filedir)//'amr_'//TRIM(nchar)//'.out'
   call backup_amr(filename)
 #ifndef WITHOUTMPI
-  if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+  if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
   if(myid==1.and.print_when_io) write(*,*)'End backup amr'
 
@@ -122,7 +122,7 @@ subroutine dump_all
      filename_desc = trim(filedir)//'hydro_file_descriptor.txt'
      call backup_hydro(filename, filename_desc)
 #ifndef WITHOUTMPI
-     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
      if(myid==1.and.print_when_io) write(*,*)'End backup hydro'
   end if
@@ -134,7 +134,7 @@ subroutine dump_all
      filename_desc = trim(filedir) // 'rt_file_descriptor.txt'
      call rt_backup_hydro(filename, filename_desc)
 #ifndef WITHOUTMPI
-     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
      if(myid==1.and.print_when_io) write(*,*)'End backup rt'
   endif
@@ -152,7 +152,7 @@ subroutine dump_all
         call rbd_output_mesh(filename)
      end if
 #ifndef WITHOUTMPI
-     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
      if(myid==1.and.print_when_io) write(*,*)'End backup part'
   end if
@@ -162,7 +162,7 @@ subroutine dump_all
      filename=TRIM(filedir)//'grav_'//TRIM(nchar)//'.out'
      call backup_poisson(filename)
 #ifndef WITHOUTMPI
-     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
      if(myid==1.and.print_when_io) write(*,*)'End backup poisson'
   end if
@@ -174,7 +174,7 @@ subroutine dump_all
      filename=TRIM(filedir)//'radgpu_'//TRIM(nchar)//'.out'
      call store_radiation(filename)
 #ifndef WITHOUTMPI
-     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
      if(myid==1.and.print_when_io) write(*,*)'End backup rad'
   end if
@@ -184,7 +184,7 @@ subroutine dump_all
      filename=TRIM(filedir)//'gsnapshot_'//TRIM(nchar)
      call savegadget(filename)
 #ifndef WITHOUTMPI
-     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+     if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
      if(myid==1.and.print_when_io) write(*,*)'End backup gadget format'
   end if
@@ -194,7 +194,7 @@ subroutine dump_all
         if(myid==1.and.print_when_io) write(*,*)'Start backup turb'
         if (myid==1) call write_turb_fields(filedir)
 #ifndef WITHOUTMPI
-        if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+        if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
         if(myid==1.and.print_when_io) write(*,*)'End backup turb'
      end if
@@ -205,7 +205,7 @@ subroutine dump_all
   filename=TRIM(filedir)//'timer_'//TRIM(nchar)//'.txt'
   call output_timer(.true., filename)
 #ifndef WITHOUTMPI
-  if(synchro_when_io) call MPI_BARRIER(MPI_COMM_WORLD,info)
+  if(synchro_when_io) call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
   if(myid==1.and.print_when_io) write(*,*)'End output timer'
 
@@ -264,7 +264,7 @@ subroutine backup_amr(filename)
      if(IOGROUPSIZE>0) then
         if (mod(myid-1,IOGROUPSIZE)/=0) then
            call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-                & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+                & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
         end if
      endif
 #endif
@@ -404,7 +404,7 @@ subroutine backup_amr(filename)
      if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
         dummy_io=1
         call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-             & MPI_COMM_WORLD,info2)
+             & MPI_COMM_RAMSES,info2)
      end if
   endif
 #endif
@@ -540,11 +540,11 @@ subroutine output_header(filename)
 
 #ifndef WITHOUTMPI
 #ifdef LONGINT
-  call MPI_ALLREDUCE(npart_family_loc,npart_family,11,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(npart_all_loc,npart_all,1,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_family_loc,npart_family,11,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(npart_all_loc,npart_all,1,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-  call MPI_ALLREDUCE(npart_family_loc,npart_family,11,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(npart_all_loc,npart_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_family_loc,npart_family,11,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(npart_all_loc,npart_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
 #else
   npart_family = npart_family_loc
@@ -606,9 +606,9 @@ subroutine savegadget(filename)
 #ifndef WITHOUTMPI
   npart_loc=npart
 #ifndef LONGINT
-  call MPI_ALLREDUCE(npart_loc,npart_tot,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_loc,npart_tot,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-  call MPI_ALLREDUCE(npart_loc,npart_tot,1,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_loc,npart_tot,1,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
 #else
   npart_tot=npart
@@ -718,7 +718,7 @@ subroutine create_output_dirs(filedir)
 
 
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD,info)
+  call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
 
 

@@ -90,7 +90,7 @@ subroutine star_formation(ilevel)
      if(IOGROUPSIZE>0) then
         if (mod(myid-1,IOGROUPSIZE)/=0) then
            call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-                & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+                & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
         end if
      endif
 #endif
@@ -415,7 +415,7 @@ subroutine star_formation(ilevel)
   !---------------------------------
   ok_free=(numbp_free-ntot-ndebris_tot)>=0
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(numbp_free,numbp_free_tot,1,MPI_INTEGER,MPI_MIN,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(numbp_free,numbp_free_tot,1,MPI_INTEGER,MPI_MIN,MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   numbp_free_tot=numbp_free
@@ -424,7 +424,7 @@ subroutine star_formation(ilevel)
      write(*,*)'No more free memory for particles'
      write(*,*)'Increase npartmax'
 #ifndef WITHOUTMPI
-    call MPI_ABORT(MPI_COMM_WORLD,1,info)
+    call MPI_ABORT(MPI_COMM_RAMSES,1,info)
 #else
     stop
 #endif
@@ -435,9 +435,9 @@ subroutine star_formation(ilevel)
   !---------------------------------
 #ifndef WITHOUTMPI
   mlost=mstar_lost; mtot=mstar_tot
-  call MPI_ALLREDUCE(ntot,ntot_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(mtot,mtot_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(mlost,mlost_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(ntot,ntot_all,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(mtot,mtot_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(mlost,mlost_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   ntot_all=ntot
@@ -447,7 +447,7 @@ subroutine star_formation(ilevel)
   ntot_star_cpu=0; ntot_star_all=0
   ntot_star_cpu(myid)=ntot
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(ntot_star_cpu,ntot_star_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(ntot_star_cpu,ntot_star_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
   ntot_star_cpu(1)=ntot_star_all(1)
 #endif
   do icpu=2,ncpu

@@ -314,7 +314,7 @@ SUBROUTINE init_SED_table()
   if(IOGROUPSIZE>0) then
      if (mod(myid-1,IOGROUPSIZE)/=0) then
         call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-             & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+             & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
      end if
   endif
 #endif
@@ -366,15 +366,15 @@ SUBROUTINE init_SED_table()
      if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
         dummy_io=1
         call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-             & MPI_COMM_WORLD,info2)
+             & MPI_COMM_RAMSES,info2)
      end if
   endif
 #endif
 
   ! If MPI then share the SED integration between the cpus:
 #ifndef WITHOUTMPI
-  call MPI_COMM_RANK(MPI_COMM_WORLD,locid,ierr)
-  call MPI_COMM_SIZE(MPI_COMM_WORLD,ncpu2,ierr)
+  call MPI_COMM_RANK(MPI_COMM_RAMSES,locid,ierr)
+  call MPI_COMM_SIZE(MPI_COMM_RAMSES,ncpu2,ierr)
 #endif
 #ifdef WITHOUTMPI
   locid=0
@@ -400,7 +400,7 @@ SUBROUTINE init_SED_table()
 #ifndef WITHOUTMPI
      allocate(tbl2(nAges,nzs,nv))
      call MPI_ALLREDUCE(tbl,tbl2,nAges*nzs*nv,&
-          MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+          MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,ierr)
      tbl = tbl2
      deallocate(tbl2)
 #endif
@@ -530,13 +530,13 @@ SUBROUTINE update_SED_group_props()
   sum_cse_all = sum_cse_cpu
 #else
   call MPI_ALLREDUCE(sum_L_cpu,   sum_L_all,   nSEDgroups,               &
-                     MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+                     MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
   call MPI_ALLREDUCE(sum_egy_cpu, sum_egy_all, nSEDgroups,               &
-                     MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+                     MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
   call MPI_ALLREDUCE(sum_csn_cpu, sum_csn_all, nSEDgroups*nIons,         &
-                     MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+                     MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
   call MPI_ALLREDUCE(sum_cse_cpu, sum_cse_all, nSEDgroups*nIons,         &
-                     MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+                     MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
 #endif
 
   ! ...and take averages weighted by luminosities
@@ -1347,7 +1347,7 @@ SUBROUTINE init_UV_background()
   if(IOGROUPSIZE>0) then
      if (mod(myid-1,IOGROUPSIZE)/=0) then
         call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-             & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+             & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
      end if
   endif
 #endif
@@ -1365,15 +1365,15 @@ SUBROUTINE init_UV_background()
      if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
         dummy_io=1
         call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-             & MPI_COMM_WORLD,info2)
+             & MPI_COMM_RAMSES,info2)
      end if
   endif
 #endif
 
   ! If mpi then share the UV integration between the cpus:
 #ifndef WITHOUTMPI
-  call MPI_COMM_RANK(MPI_COMM_WORLD,locid,ierr)
-  call MPI_COMM_SIZE(MPI_COMM_WORLD,ncpu2,ierr)
+  call MPI_COMM_RANK(MPI_COMM_RAMSES,locid,ierr)
+  call MPI_COMM_SIZE(MPI_COMM_RAMSES,ncpu2,ierr)
 #endif
 #ifdef WITHOUTMPI
   locid=0 ; ncpu2=1
@@ -1398,7 +1398,7 @@ SUBROUTINE init_UV_background()
 #ifndef WITHOUTMPI
         allocate(tbl2(UV_nz,2))
         call MPI_ALLREDUCE(tbl, tbl2, UV_nz*2,  &
-             MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, ierr)
+             MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, ierr)
         tbl = tbl2
         deallocate(tbl2)
 #endif
@@ -1456,7 +1456,7 @@ SUBROUTINE init_UV_background()
 #ifndef WITHOUTMPI
         allocate(tbl2(UV_nz,2+2*nIons))
         call MPI_ALLREDUCE(tbl,tbl2,UV_nz*(2+2*nIons),&
-             MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+             MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,ierr)
         tbl = tbl2
         deallocate(tbl2)
 #endif

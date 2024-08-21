@@ -459,7 +459,7 @@ subroutine init_part
                     endif
                     buf_count=n1(ilevel)*n2(ilevel)
 #ifndef WITHOUTMPI
-                    call MPI_BCAST(init_plane,buf_count,MPI_REAL,0,MPI_COMM_WORLD,info)
+                    call MPI_BCAST(init_plane,buf_count,MPI_REAL,0,MPI_COMM_RAMSES,info)
 #endif
 
                     if(active(ilevel)%ngrid>0)then
@@ -486,7 +486,7 @@ subroutine init_part
                        endif
                        buf_count=n1(ilevel)*n2(ilevel)
 #ifndef WITHOUTMPI
-                       call MPI_BCAST(init_plane_x,buf_count,MPI_REAL,0,MPI_COMM_WORLD,info)
+                       call MPI_BCAST(init_plane_x,buf_count,MPI_REAL,0,MPI_COMM_RAMSES,info)
 #endif
                        if(active(ilevel)%ngrid>0)then
                           if(i3.ge.i3_min.and.i3.le.i3_max)then
@@ -638,7 +638,7 @@ subroutine init_part
         end do
 
         ! Communicate virtual particle number to parent cpu
-        call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_WORLD,info)
+        call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_RAMSES,info)
 
         ! Compute total number of newly created particles
         npart_new=0
@@ -652,7 +652,7 @@ subroutine init_part
            write(*,*)myid
            write(*,*)jpart,npart_new
            write(*,*)bound_key
-           call MPI_ABORT(MPI_COMM_WORLD,1,info)
+           call MPI_ABORT(MPI_COMM_RAMSES,1,info)
         end if
 
         ! Allocate communication buffer in reception
@@ -672,7 +672,7 @@ subroutine init_part
               countrecv=countrecv+1
               call MPI_IRECV(reception(icpu,1)%up,buf_count, &
                    & MPI_DOUBLE_PRECISION,icpu-1,&
-                   & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+                   & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
            end if
         end do
 
@@ -685,7 +685,7 @@ subroutine init_part
               countsend=countsend+1
               call MPI_ISEND(emission(icpu,1)%up,buf_count, &
                    & MPI_DOUBLE_PRECISION,icpu-1,&
-                   & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+                   & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
            end if
         end do
 
@@ -749,7 +749,7 @@ subroutine init_part
         npart_cpu=0; npart_all=0
         npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
-        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
         npart_cpu(1)=npart_all(1)
 #endif
         do icpu=2,ncpu
@@ -858,12 +858,12 @@ subroutine init_part
            endif
            buf_count=nvector*3
 #ifndef WITHOUTMPI
-           call MPI_BCAST(xx,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(vv,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(mm,nvector  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(ii,nvector  ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(eof,1       ,MPI_LOGICAL         ,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(jpart,1     ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
+           call MPI_BCAST(xx,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(vv,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(mm,nvector  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(ii,nvector  ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(eof,1       ,MPI_LOGICAL         ,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(jpart,1     ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
            call cmp_cpumap(xx,cc,jpart)
 #endif
 
@@ -965,12 +965,12 @@ subroutine init_part
            endif
            buf_count=nvector*3
 #ifndef WITHOUTMPI
-           call MPI_BCAST(xx,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(vv,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(mm,nvector  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(ii,nvector  ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(eof,1       ,MPI_LOGICAL         ,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(jpart,1     ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
+           call MPI_BCAST(xx,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(vv,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(mm,nvector  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(ii,nvector  ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(eof,1       ,MPI_LOGICAL         ,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(jpart,1     ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
            call cmp_cpumap(xx,cc,jpart)
 #endif
 
@@ -1003,7 +1003,7 @@ subroutine init_part
         npart_cpu=0; npart_all=0
         npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
-        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
         npart_cpu(1)=npart_all(1)
 #endif
         do icpu=2,ncpu
@@ -1186,7 +1186,7 @@ subroutine load_gadget
   npart_cpu=0; npart_all=0
   npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
   npart_cpu(1)=npart_all(1)
 #endif
   do icpu=2,ncpu

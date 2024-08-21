@@ -26,7 +26,7 @@ subroutine write_screen
   if(ndim>1)return
 
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD,info)
+  call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
   
   ncell=0
@@ -59,7 +59,7 @@ subroutine write_screen
   ncell_all=0
   ncell_loc(myid)=ncell
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(ncell_loc,ncell_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(ncell_loc,ncell_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   ncell_all=ncell_loc
@@ -136,11 +136,11 @@ subroutine write_screen
   end do
 
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(ff,ff_all,ncell*nmat,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(gg,gg_all,ncell*nmat,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(qq,qq_all,ncell*npri,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(ll,ll_all,ncell     ,MPI_INTEGER         ,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(rr,rr_all,ncell     ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(ff,ff_all,ncell*nmat,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(gg,gg_all,ncell*nmat,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(qq,qq_all,ncell*npri,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(ll,ll_all,ncell     ,MPI_INTEGER         ,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(rr,rr_all,ncell     ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   ff=ff_all; gg=gg_all; qq=qq_all; rr=rr_all; ll=ll_all
 #endif
 
@@ -183,7 +183,7 @@ subroutine write_screen
   end if
  
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD,info)
+  call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
 
 111 format(2(1pe12.5,1x))

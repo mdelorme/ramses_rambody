@@ -40,7 +40,7 @@ subroutine diffusion
      do ilevel=nlevelmax,levelmin,-1
         call diffusion_fine(ilevel,dtdiff)
 #ifndef WITHOUTMPI
-        call MPI_BARRIER(MPI_COMM_WORLD,info)
+        call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
         call make_virtual_reverse_dp(unew(1,6),ilevel)
         call make_virtual_reverse_dp(unew(1,7),ilevel)

@@ -25,7 +25,7 @@ subroutine write_screen
   smallp = smallc**2/gamma
 
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD,info)
+  call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
 
   ncell=0
@@ -59,7 +59,7 @@ subroutine write_screen
   ncell_loc(myid)=ncell
 #ifndef WITHOUTMPI
   call MPI_ALLREDUCE(ncell_loc,ncell_all,ncpu,MPI_INTEGER,MPI_SUM,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   ncell_all=ncell_loc
@@ -213,16 +213,16 @@ subroutine write_screen
   end do
 
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(rr,rr_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(mm,mm_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(dd,dd_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(dtot,dtot_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(et,et_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(ei,ei_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(uu,uu_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(gg,gg_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(ll,ll_all,ncell,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(rr,rr_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(rr,rr_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(mm,mm_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(dd,dd_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(dtot,dtot_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(et,et_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(ei,ei_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(uu,uu_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(gg,gg_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(ll,ll_all,ncell,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(rr,rr_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   rr=rr_all; mm=mm_all; dd=dd_all; dtot=dtot_all; et=et_all
   ei=ei_all; uu=uu_all; gg=gg_all; ll=ll_all
 #endif
@@ -265,7 +265,7 @@ subroutine write_screen
 !end if
 
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD,info)
+  call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
 
 111 format(2(1pe12.5,1x))

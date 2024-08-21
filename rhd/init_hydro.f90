@@ -130,7 +130,7 @@ subroutine init_hydro
      close(ilun)
 #ifndef WITHOUTMPI
      if(debug)write(*,*)'hydro.tmp read for processor ',myid
-     call MPI_BARRIER(MPI_COMM_WORLD,info)
+     call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
      if(verbose)write(*,*)'HYDRO backup files read completed'
   end if

@@ -123,7 +123,7 @@ subroutine multigrid_fine(ilevel,icount)
       ! Allreduce on mask state
 #ifndef WITHOUTMPI
       call MPI_ALLREDUCE(allmasked, allmasked_tot, 1, MPI_LOGICAL, &
-           & MPI_LAND, MPI_COMM_WORLD, info)
+           & MPI_LAND, MPI_COMM_RAMSES, info)
       allmasked=allmasked_tot
 #endif
    else
@@ -165,7 +165,7 @@ subroutine multigrid_fine(ilevel,icount)
          ! Allreduce on mask state
 #ifndef WITHOUTMPI
          call MPI_ALLREDUCE(allmasked,allmasked_tot,1,MPI_LOGICAL, &
-                 & MPI_LAND,MPI_COMM_WORLD,info)
+                 & MPI_LAND,MPI_COMM_RAMSES,info)
          allmasked=allmasked_tot
 #endif
 
@@ -208,7 +208,7 @@ subroutine multigrid_fine(ilevel,icount)
          call cmp_residual_norm2_fine(ilevel,i_res_norm2)
 #ifndef WITHOUTMPI
          call MPI_ALLREDUCE(i_res_norm2,i_res_norm2_tot,1, &
-                 & MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+                 & MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
          i_res_norm2=i_res_norm2_tot
 #endif
       end if
@@ -259,7 +259,7 @@ subroutine multigrid_fine(ilevel,icount)
       call cmp_residual_norm2_fine(ilevel,res_norm2)
 #ifndef WITHOUTMPI
       call MPI_ALLREDUCE(res_norm2,res_norm2_tot,1, &
-              & MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+              & MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
       res_norm2=res_norm2_tot
 #endif
 
@@ -496,7 +496,7 @@ subroutine build_parent_comms_mg(active_loc, ifinelevel)
 #ifndef WITHOUTMPI
    ! Share number of requests and replies
    call MPI_ALLTOALL(nreq, 1, MPI_INTEGER, recvbuf, 1, MPI_INTEGER, &
-      & MPI_COMM_WORLD, info)
+      & MPI_COMM_RAMSES, info)
 
    ! Allocate inbound comms
    do icpu=1,ncpu
@@ -512,7 +512,7 @@ subroutine build_parent_comms_mg(active_loc, ifinelevel)
       if(ngrids>0) then
          countrecv=countrecv+1
          call MPI_IRECV(comm_receive(icpu)%igrid, ngrids, MPI_INTEGER, &
-            & icpu-1, tag, MPI_COMM_WORLD, reqrecv(countrecv), info)
+            & icpu-1, tag, MPI_COMM_RAMSES, reqrecv(countrecv), info)
       end if
    end do
 
@@ -537,7 +537,7 @@ subroutine build_parent_comms_mg(active_loc, ifinelevel)
       if(ngrids>0) then
          countsend=countsend+1
          call MPI_ISEND(comm_send(icpu)%igrid, ngrids, MPI_INTEGER, &
-            & icpu-1, tag, MPI_COMM_WORLD, reqsend(countsend), info) 
+            & icpu-1, tag, MPI_COMM_RAMSES, reqsend(countsend), info) 
       end if
    end do
 
@@ -643,7 +643,7 @@ subroutine build_parent_comms_mg(active_loc, ifinelevel)
    ! Share number of requests and replies
    recvbuf2=0
    call MPI_ALLTOALL(nreq2, 1, MPI_INTEGER, recvbuf2, 1, MPI_INTEGER, &
-      & MPI_COMM_WORLD, info)
+      & MPI_COMM_RAMSES, info)
 
    ! Allocate inbound comms
    do icpu=1,ncpu
@@ -659,7 +659,7 @@ subroutine build_parent_comms_mg(active_loc, ifinelevel)
       if(ngrids>0) then
          countrecv=countrecv+1
          call MPI_IRECV(comm_receive2(icpu)%igrid, ngrids, MPI_INTEGER, &
-            & icpu-1, tag, MPI_COMM_WORLD, reqrecv(countrecv), info)
+            & icpu-1, tag, MPI_COMM_RAMSES, reqrecv(countrecv), info)
       end if
    end do
 
@@ -686,7 +686,7 @@ subroutine build_parent_comms_mg(active_loc, ifinelevel)
       if(ngrids>0) then
          countsend=countsend+1
          call MPI_ISEND(comm_send2(icpu)%igrid,ngrids,MPI_INTEGER,icpu-1, &
-            & tag, MPI_COMM_WORLD, reqsend(countsend), info)
+            & tag, MPI_COMM_RAMSES, reqsend(countsend), info)
       end if
    end do
 
@@ -792,7 +792,7 @@ subroutine build_parent_comms_mg(active_loc, ifinelevel)
       if(ngrids>0) then
          countrecv=countrecv+1
          call MPI_IRECV(comm_send2(icpu)%igrid,ngrids,MPI_INTEGER,icpu-1, &
-            & tag, MPI_COMM_WORLD, reqrecv(countrecv), info)
+            & tag, MPI_COMM_RAMSES, reqrecv(countrecv), info)
       end if
    end do
 
@@ -804,7 +804,7 @@ subroutine build_parent_comms_mg(active_loc, ifinelevel)
       if(ngrids>0) then
          countsend=countsend+1
          call MPI_ISEND(comm_receive2(icpu)%igrid,ngrids,MPI_INTEGER, &
-            & icpu-1, tag, MPI_COMM_WORLD, reqsend(countsend), info)
+            & icpu-1, tag, MPI_COMM_RAMSES, reqsend(countsend), info)
       end if
    end do
 
@@ -1195,10 +1195,10 @@ subroutine make_virtual_mg_dp(ivar,ilevel)
        countrecv=countrecv+1
 #ifdef LIGHT_MPI_COMM
        call MPI_IRECV(active_mg(icpu,ilevel)%pcomm%u(1,ivar),ncache*twotondim, &
-            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_WORLD,reqrecv(countrecv),info)
+            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #else
        call MPI_IRECV(active_mg(icpu,ilevel)%u(1,ivar),ncache*twotondim, &
-            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_WORLD,reqrecv(countrecv),info)
+            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #endif
      end if
   end do
@@ -1240,7 +1240,7 @@ subroutine make_virtual_mg_dp(ivar,ilevel)
       ncache=emission_mg(ilevel)%ngrids(idx)*twotondim
       countsend=countsend+1
       call MPI_ISEND(emission_mg(ilevel)%u(offset,1),ncache,MPI_DOUBLE_PRECISION,&
-                     emission_mg(ilevel)%cpuid(idx)-1,tag,MPI_COMM_WORLD,reqsend(countsend),info)
+                     emission_mg(ilevel)%cpuid(idx)-1,tag,MPI_COMM_RAMSES,reqsend(countsend),info)
       offset=offset+ncache
    end do
 #else
@@ -1251,7 +1251,7 @@ subroutine make_virtual_mg_dp(ivar,ilevel)
         countsend=countsend+1
  
        call MPI_ISEND(emission_mg(icpu,ilevel)%u,ncache*twotondim, &
-            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_WORLD,reqsend(countsend),info)
+            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_RAMSES,reqsend(countsend),info)
      end if
   end do
 #endif
@@ -1294,10 +1294,10 @@ subroutine make_virtual_mg_int(ilevel)
        countrecv=countrecv+1
 #ifdef LIGHT_MPI_COMM
        call MPI_IRECV(active_mg(icpu,ilevel)%pcomm%f(1,1),ncache*twotondim, &
-            & MPI_INTEGER,icpu-1,tag,MPI_COMM_WORLD,reqrecv(countrecv),info)
+            & MPI_INTEGER,icpu-1,tag,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #else
        call MPI_IRECV(active_mg(icpu,ilevel)%f(1,1),ncache*twotondim, &
-            & MPI_INTEGER,icpu-1,tag,MPI_COMM_WORLD,reqrecv(countrecv),info)
+            & MPI_INTEGER,icpu-1,tag,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #endif
      end if
   end do
@@ -1338,7 +1338,7 @@ subroutine make_virtual_mg_int(ilevel)
       ncache=emission_mg(ilevel)%ngrids(idx)*twotondim
       countsend=countsend+1
       call MPI_ISEND(emission_mg(ilevel)%f(1,offset),ncache,MPI_INTEGER,&
-                     emission_mg(ilevel)%cpuid(idx)-1,tag,MPI_COMM_WORLD,reqsend(countsend),info)
+                     emission_mg(ilevel)%cpuid(idx)-1,tag,MPI_COMM_RAMSES,reqsend(countsend),info)
       offset=offset+emission_mg(ilevel)%ngrids(idx)
    end do
 #else
@@ -1347,7 +1347,7 @@ subroutine make_virtual_mg_int(ilevel)
      if(ncache>0) then
        countsend=countsend+1
        call MPI_ISEND(emission_mg(icpu,ilevel)%f,ncache*twotondim, &
-            & MPI_INTEGER,icpu-1,tag,MPI_COMM_WORLD,reqsend(countsend),info)
+            & MPI_INTEGER,icpu-1,tag,MPI_COMM_RAMSES,reqsend(countsend),info)
      end if
   end do
 #endif
@@ -1390,7 +1390,7 @@ subroutine make_reverse_mg_dp(ivar,ilevel)
     ncache=emission_mg(ilevel)%ngrids(idx)*twotondim
     countrecv=countrecv+1
     call MPI_IRECV(emission_mg(ilevel)%u(offset,1),ncache,MPI_DOUBLE_PRECISION,&
-                   emission_mg(ilevel)%cpuid(idx)-1,tag,MPI_COMM_WORLD,reqrecv(countrecv),info)
+                   emission_mg(ilevel)%cpuid(idx)-1,tag,MPI_COMM_RAMSES,reqrecv(countrecv),info)
     offset=offset+ncache
   end do
 #else
@@ -1399,7 +1399,7 @@ subroutine make_reverse_mg_dp(ivar,ilevel)
      if(ncache>0) then
        countrecv=countrecv+1
        call MPI_IRECV(emission_mg(icpu,ilevel)%u,ncache*twotondim, &
-            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_WORLD,reqrecv(countrecv),info)
+            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_RAMSES,reqrecv(countrecv),info)
      end if
   end do
 #endif
@@ -1413,10 +1413,10 @@ subroutine make_reverse_mg_dp(ivar,ilevel)
        countsend=countsend+1
 #ifdef LIGHT_MPI_COMM
        call MPI_ISEND(active_mg(icpu,ilevel)%pcomm%u(1,ivar),ncache*twotondim, &
-            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_WORLD,reqsend(countsend),info)
+            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
        call MPI_ISEND(active_mg(icpu,ilevel)%u(1,ivar),ncache*twotondim, &
-            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_WORLD,reqsend(countsend),info)
+            & MPI_DOUBLE_PRECISION,icpu-1,tag,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
      end if
   end do
@@ -1490,7 +1490,7 @@ subroutine make_reverse_mg_int(ilevel)
     ncache=emission_mg(ilevel)%ngrids(idx)*twotondim
     countrecv=countrecv+1
     call MPI_IRECV(emission_mg(ilevel)%f(1, offset),ncache,MPI_INTEGER,&
-                   emission_mg(ilevel)%cpuid(idx)-1,tag,MPI_COMM_WORLD,reqrecv(countrecv),info)
+                   emission_mg(ilevel)%cpuid(idx)-1,tag,MPI_COMM_RAMSES,reqrecv(countrecv),info)
     offset=offset+emission_mg(ilevel)%ngrids(idx)
   end do
 #else
@@ -1499,7 +1499,7 @@ subroutine make_reverse_mg_int(ilevel)
      if(ncache>0) then
        countrecv=countrecv+1
        call MPI_IRECV(emission_mg(icpu,ilevel)%f,ncache*twotondim, &
-            & MPI_INTEGER,icpu-1,tag,MPI_COMM_WORLD,reqrecv(countrecv),info)
+            & MPI_INTEGER,icpu-1,tag,MPI_COMM_RAMSES,reqrecv(countrecv),info)
      end if
   end do
 #endif
@@ -1513,10 +1513,10 @@ subroutine make_reverse_mg_int(ilevel)
        countsend=countsend+1
 #ifdef LIGHT_MPI_COMM
        call MPI_ISEND(active_mg(icpu,ilevel)%pcomm%f,ncache*twotondim, &
-            & MPI_INTEGER,icpu-1,tag,MPI_COMM_WORLD,reqsend(countsend),info)
+            & MPI_INTEGER,icpu-1,tag,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
        call MPI_ISEND(active_mg(icpu,ilevel)%f,ncache*twotondim, &
-            & MPI_INTEGER,icpu-1,tag,MPI_COMM_WORLD,reqsend(countsend),info)
+            & MPI_INTEGER,icpu-1,tag,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
      end if
   end do
@@ -1594,7 +1594,7 @@ subroutine dump_mg_levels(ilevel,idout)
    if(IOGROUPSIZE>0) then
       if (mod(myid-1,IOGROUPSIZE)/=0) then
          call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-              & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+              & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
       end if
    endif
 #endif
@@ -1647,7 +1647,7 @@ subroutine dump_mg_levels(ilevel,idout)
       if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
          dummy_io=1
          call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-              & MPI_COMM_WORLD,info2)
+              & MPI_COMM_RAMSES,info2)
       end if
    endif
 #endif

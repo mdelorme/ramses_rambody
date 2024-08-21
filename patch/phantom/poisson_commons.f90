@@ -616,8 +616,8 @@ subroutine compute_rho_mond_tot(ilevel)
   end if
 
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(rmt,   rmt_all,   1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
-  call MPI_ALLREDUCE(count, count_all, 1, MPI_INTEGER,          MPI_SUM, MPI_COMM_WORLD, info)
+  call MPI_ALLREDUCE(rmt,   rmt_all,   1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
+  call MPI_ALLREDUCE(count, count_all, 1, MPI_INTEGER,          MPI_SUM, MPI_COMM_RAMSES, info)
   rho_mond_tot = rmt_all/count_all
 #else
   rho_mond_tot = rmt/count

@@ -144,7 +144,7 @@ subroutine cpu_mpi_boundary()
           & MPI_REAL8, &
           & adjacent_cpu(i)-1, &
           & tag_recv, &
-          & MPI_COMM_WORLD, &
+          & MPI_COMM_RAMSES, &
           & boundary_receive_request(n_receive_request), &
           & info)
   end do
@@ -172,7 +172,7 @@ subroutine cpu_mpi_boundary()
           & MPI_REAL8, &
           & adjacent_cpu(i)-1, &
           & tag_send, &
-          & MPI_COMM_WORLD, &
+          & MPI_COMM_RAMSES, &
           & boundary_send_request(n_send_request), &
           & info)
   end do

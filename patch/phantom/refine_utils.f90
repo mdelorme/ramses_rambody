@@ -62,7 +62,7 @@ subroutine refine_coarse
      write(*,*)'No more free memory'
      write(*,*)'Increase ngridmax'
 #ifndef WITHOUTMPI
-     call MPI_ABORT(MPI_COMM_WORLD,1,info)
+     call MPI_ABORT(MPI_COMM_RAMSES,1,info)
 #else
      stop
 #endif
@@ -132,16 +132,16 @@ subroutine refine_coarse
   ! Compute grid number statistics at level 1
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-  call MPI_ALLREDUCE(numbl(myid,1),numbtot(1,1),1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(numbl(myid,1),numbtot(2,1),1,MPI_INTEGER,MPI_MIN,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(numbl(myid,1),numbtot(3,1),1,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(numbl(myid,1),numbtot(1,1),1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(numbl(myid,1),numbtot(2,1),1,MPI_INTEGER,MPI_MIN,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(numbl(myid,1),numbtot(3,1),1,MPI_INTEGER,MPI_MAX,MPI_COMM_RAMSES,info)
 #else
   tmp_long=numbl(myid,1)
-  call MPI_ALLREDUCE(tmp_long,numbtot(1,1),1,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(tmp_long,numbtot(2,1),1,MPI_INTEGER8,MPI_MIN,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(tmp_long,numbtot(3,1),1,MPI_INTEGER8,MPI_MAX,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(tmp_long,numbtot(1,1),1,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(tmp_long,numbtot(2,1),1,MPI_INTEGER8,MPI_MIN,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(tmp_long,numbtot(3,1),1,MPI_INTEGER8,MPI_MAX,MPI_COMM_RAMSES,info)
 #endif
-  call MPI_ALLREDUCE(used_mem,used_mem_tot,1,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(used_mem,used_mem_tot,1,MPI_INTEGER,MPI_MAX,MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   numbtot(1,1)=numbl(myid,1)
@@ -425,7 +425,7 @@ subroutine refine_fine(ilevel)
               write(*,*)'No more free memory'
               write(*,*)'Increase ngridmax'
 #ifndef WITHOUTMPI
-              call MPI_ABORT(MPI_COMM_WORLD,1,info)
+              call MPI_ABORT(MPI_COMM_RAMSES,1,info)
 #else
               stop
 #endif
@@ -529,16 +529,16 @@ subroutine refine_fine(ilevel)
   ! Compute grid number statistics at level ilevel+1
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-  call MPI_ALLREDUCE(numbl(myid,ilevel+1),numbtot(1,ilevel+1),1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(numbl(myid,ilevel+1),numbtot(2,ilevel+1),1,MPI_INTEGER,MPI_MIN,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(numbl(myid,ilevel+1),numbtot(3,ilevel+1),1,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(numbl(myid,ilevel+1),numbtot(1,ilevel+1),1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(numbl(myid,ilevel+1),numbtot(2,ilevel+1),1,MPI_INTEGER,MPI_MIN,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(numbl(myid,ilevel+1),numbtot(3,ilevel+1),1,MPI_INTEGER,MPI_MAX,MPI_COMM_RAMSES,info)
 #else
   tmp_long=numbl(myid,ilevel+1)
-  call MPI_ALLREDUCE(tmp_long,numbtot(1,ilevel+1),1,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(tmp_long,numbtot(2,ilevel+1),1,MPI_INTEGER8,MPI_MIN,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(tmp_long,numbtot(3,ilevel+1),1,MPI_INTEGER8,MPI_MAX,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(tmp_long,numbtot(1,ilevel+1),1,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(tmp_long,numbtot(2,ilevel+1),1,MPI_INTEGER8,MPI_MIN,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(tmp_long,numbtot(3,ilevel+1),1,MPI_INTEGER8,MPI_MAX,MPI_COMM_RAMSES,info)
 #endif
-  call MPI_ALLREDUCE(used_mem,used_mem_tot,1,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(used_mem,used_mem_tot,1,MPI_INTEGER,MPI_MAX,MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   numbtot(1,ilevel+1)=numbl(myid,ilevel+1)

@@ -122,7 +122,7 @@ subroutine multigrid_coarse(ilevel,icount)
   end do
   ! Compute global norms
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(rhs_norm,rhs_norm_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(rhs_norm,rhs_norm_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   rhs_norm=rhs_norm_all
 #endif
   rhs_norm=SQRT(rhs_norm)
@@ -155,7 +155,7 @@ subroutine multigrid_coarse(ilevel,icount)
   end do
   ! Compute global norms
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(error,error_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(error,error_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   error=error_all
 #endif
   error=SQRT(error)
@@ -211,7 +211,7 @@ subroutine multigrid_coarse(ilevel,icount)
   end do
   ! Compute global norms
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(error,error_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(error,error_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   error=error_all
 #endif
   error=SQRT(error)

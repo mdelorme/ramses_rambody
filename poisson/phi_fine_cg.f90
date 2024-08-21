@@ -72,7 +72,7 @@ subroutine phi_fine_cg(ilevel,icount)
   ! Compute global norms
 #ifndef WITHOUTMPI
   call MPI_ALLREDUCE(rhs_norm,rhs_norm_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
   rhs_norm=rhs_norm_all
 #endif
   rhs_norm=DSQRT(rhs_norm/dble(twotondim*numbtot(1,ilevel)))
@@ -106,7 +106,7 @@ subroutine phi_fine_cg(ilevel,icount)
      ! Compute global norm
 #ifndef WITHOUTMPI
      call MPI_ALLREDUCE(r2,r2_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,&
-          & MPI_COMM_WORLD,info)
+          & MPI_COMM_RAMSES,info)
      r2=r2_all
 #endif
 
@@ -152,7 +152,7 @@ subroutine phi_fine_cg(ilevel,icount)
      ! Compute global sum
 #ifndef WITHOUTMPI
      call MPI_ALLREDUCE(pAp,pAp_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,&
-          & MPI_COMM_WORLD,info)
+          & MPI_COMM_RAMSES,info)
      pAp=pAp_all
 #endif
 

@@ -120,7 +120,7 @@ subroutine init_part
      if(IOGROUPSIZE>0) then
         if (mod(myid-1,IOGROUPSIZE)/=0) then
            call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tagg,&
-                & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+                & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
         end if
      endif
 #endif
@@ -220,7 +220,7 @@ subroutine init_part
         if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
            dummy_io=1
            call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tagg, &
-                & MPI_COMM_WORLD,info2)
+                & MPI_COMM_RAMSES,info2)
         end if
      endif
 #endif
@@ -236,7 +236,7 @@ subroutine init_part
         end do
 
 #ifndef WITHOUTMPI
-        call MPI_ALLREDUCE(min_mdm_cpu,min_mdm_all,1,MPI_DOUBLE_PRECISION,MPI_MIN,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(min_mdm_cpu,min_mdm_all,1,MPI_DOUBLE_PRECISION,MPI_MIN,MPI_COMM_RAMSES,info)
 #else
         min_mdm_all = min_mdm_cpu
 #endif
@@ -462,7 +462,7 @@ contains
              if(IOGROUPSIZE>0) then
                 if (mod(myid-1,IOGROUPSIZE)/=0) then
                    call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tagg2,&
-                        & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+                        & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
                 end if
              endif
 #endif
@@ -485,7 +485,7 @@ contains
                 if(mod(myid,IOGROUPSIZE)/=0 .and.(myid.lt.ncpu))then
                    dummy_io=1
                    call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tagg2, &
-                        & MPI_COMM_WORLD,info2)
+                        & MPI_COMM_RAMSES,info2)
                 end if
              endif
 #endif
@@ -505,7 +505,7 @@ contains
                 endif
                 buf_count=n1(ilevel)*n2(ilevel)
 #ifndef WITHOUTMPI
-                call MPI_BCAST(init_plane,buf_count,MPI_REAL,0,MPI_COMM_WORLD,info)
+                call MPI_BCAST(init_plane,buf_count,MPI_REAL,0,MPI_COMM_RAMSES,info)
 #endif
 
                 if(active(ilevel)%ngrid>0)then
@@ -532,7 +532,7 @@ contains
                    endif
                    buf_count=n1(ilevel)*n2(ilevel)
 #ifndef WITHOUTMPI
-                   call MPI_BCAST(init_plane_x,buf_count,MPI_REAL,0,MPI_COMM_WORLD,info)
+                   call MPI_BCAST(init_plane_x,buf_count,MPI_REAL,0,MPI_COMM_RAMSES,info)
 #endif
                    if(active(ilevel)%ngrid>0)then
                       if(i3.ge.i3_min.and.i3.le.i3_max)then
@@ -560,9 +560,9 @@ contains
                    buf_count=n1(ilevel)*n2(ilevel)
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-                   call MPI_BCAST(init_plane_id,buf_count,MPI_INTEGER,0,MPI_COMM_WORLD,info)
+                   call MPI_BCAST(init_plane_id,buf_count,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
 #else
-                   call MPI_BCAST(init_plane_id,buf_count,MPI_INTEGER8,0,MPI_COMM_WORLD,info)
+                   call MPI_BCAST(init_plane_id,buf_count,MPI_INTEGER8,0,MPI_COMM_RAMSES,info)
 #endif
 #endif
                    if(active(ilevel)%ngrid>0)then
@@ -590,7 +590,7 @@ contains
                   endif
                   buf_count=n1(ilevel)*n2(ilevel)
 #ifndef WITHOUTMPI
-                  call MPI_BCAST(init_plane_m,buf_count,MPI_REAL,0,MPI_COMM_WORLD,info)
+                  call MPI_BCAST(init_plane_m,buf_count,MPI_REAL,0,MPI_COMM_RAMSES,info)
 #endif
                   if(active(ilevel)%ngrid>0)then
                      if(i3.ge.i3_min.and.i3.le.i3_max)then
@@ -832,7 +832,7 @@ contains
     end do
 #endif
     ! Communicate virtual particle number to parent cpu
-    call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_WORLD,info)
+    call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_RAMSES,info)
 
     ! Compute total number of newly created particles
     npart_new=0
@@ -846,7 +846,7 @@ contains
        write(*,*)myid
        write(*,*)jpart,npart_new
        write(*,*)bound_key
-       call MPI_ABORT(MPI_COMM_WORLD,1,info)
+       call MPI_ABORT(MPI_COMM_RAMSES,1,info)
     end if
 
     ! Allocate communication buffer in reception
@@ -874,11 +874,11 @@ contains
 #ifdef LIGHT_MPI_COMM
           call MPI_IRECV(reception(icpu,1)%pcomm%u,buf_count, &
                & MPI_DOUBLE_PRECISION,icpu-1,&
-               & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+               & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #else
           call MPI_IRECV(reception(icpu,1)%up,buf_count, &
                & MPI_DOUBLE_PRECISION,icpu-1,&
-               & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+               & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #endif
        end if
     end do
@@ -893,11 +893,11 @@ contains
 #ifdef LIGHT_MPI_COMM
           call MPI_ISEND(emission_part(1)%u(sendbuf_cum(icpu)+ncache,1),buf_count, &
                & MPI_DOUBLE_PRECISION,icpu-1,&
-               & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+               & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
           call MPI_ISEND(emission(icpu,1)%up,buf_count, &
                & MPI_DOUBLE_PRECISION,icpu-1,&
-               & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+               & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
        end if
     end do
@@ -920,21 +920,21 @@ contains
 #ifndef LONGINT
           call MPI_IRECV(reception(icpu,1)%pcomm%f8,buf_count, &
                 & MPI_INTEGER,icpu-1,&
-                & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+                & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #else
           call MPI_IRECV(reception(icpu,1)%pcomm%f8,buf_count, &
                 & MPI_INTEGER8,icpu-1,&
-                & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+                & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #endif
 #else
 #ifndef LONGINT
           call MPI_IRECV(reception(icpu,1)%fp,buf_count, &
                 & MPI_INTEGER,icpu-1,&
-                & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+                & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #else
           call MPI_IRECV(reception(icpu,1)%fp,buf_count, &
                 & MPI_INTEGER8,icpu-1,&
-                & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+                & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #endif
 #endif
        end if
@@ -951,21 +951,21 @@ contains
 #ifndef LONGINT
           call MPI_ISEND(emission_part(1)%f8(sendbuf_cum(icpu)+ncache,1),buf_count, &
                 & MPI_INTEGER,icpu-1,&
-                & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+                & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
           call MPI_ISEND(emission_part(1)%f8(sendbuf_cum(icpu)+ncache,1),buf_count, &
                 & MPI_INTEGER8,icpu-1,&
-                & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+                & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
 #else
 #ifndef LONGINT
           call MPI_ISEND(emission(icpu,1)%fp,buf_count, &
                 & MPI_INTEGER,icpu-1,&
-                & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+                & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
           call MPI_ISEND(emission(icpu,1)%fp,buf_count, &
                 & MPI_INTEGER8,icpu-1,&
-                & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+                & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
 #endif
        end if
@@ -1072,9 +1072,9 @@ contains
       npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-      call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+      call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-      call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+      call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
       npart_cpu(1)=npart_all(1)
 #endif
@@ -1133,13 +1133,13 @@ contains
           endif
           buf_count=nvector*3
 #ifndef WITHOUTMPI
-          call MPI_BCAST(xx,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-          call MPI_BCAST(vv,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-          call MPI_BCAST(mm,nvector  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-          call MPI_BCAST(ii,nvector  ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-          call MPI_BCAST(pp,nvector  ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-          call MPI_BCAST(eof,1       ,MPI_LOGICAL         ,0,MPI_COMM_WORLD,info)
-          call MPI_BCAST(jpart,1     ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
+          call MPI_BCAST(xx,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+          call MPI_BCAST(vv,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+          call MPI_BCAST(mm,nvector  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+          call MPI_BCAST(ii,nvector  ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+          call MPI_BCAST(pp,nvector  ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+          call MPI_BCAST(eof,1       ,MPI_LOGICAL         ,0,MPI_COMM_RAMSES,info)
+          call MPI_BCAST(jpart,1     ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
           call cmp_cpumap(xx,cc,jpart)
 #endif
 
@@ -1177,9 +1177,9 @@ contains
     npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
     npart_cpu(1)=npart_all(1)
 #endif
@@ -1299,9 +1299,9 @@ subroutine load_gadget
   npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-  call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-  call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
   npart_cpu(1)=npart_all(1)
 #endif

@@ -85,8 +85,8 @@ SUBROUTINE init_coolrates_tables(aexp)
   integer :: myid, ncpu, iT
 !-------------------------------------------------------------------------
 #ifndef WITHOUTMPI
-  call MPI_COMM_RANK(MPI_COMM_WORLD,myid,ierr)
-  call MPI_COMM_SIZE(MPI_COMM_WORLD,ncpu,ierr)
+  call MPI_COMM_RANK(MPI_COMM_RAMSES,myid,ierr)
+  call MPI_COMM_SIZE(MPI_COMM_RAMSES,ncpu,ierr)
 #endif
 #ifdef WITHOUTMPI
   myid=0
@@ -170,8 +170,8 @@ SUBROUTINE update_coolrates_tables(aexp)
   integer:: myid, ncpu, iT
 !-------------------------------------------------------------------------
 #ifndef WITHOUTMPI
-  call MPI_COMM_RANK(MPI_COMM_WORLD,myid,ierr)
-  call MPI_COMM_SIZE(MPI_COMM_WORLD,ncpu,ierr)
+  call MPI_COMM_RANK(MPI_COMM_RAMSES,myid,ierr)
+  call MPI_COMM_SIZE(MPI_COMM_RAMSES,ncpu,ierr)
 #endif
 #ifdef WITHOUTMPI
   myid=0
@@ -205,10 +205,10 @@ SUBROUTINE mpi_distribute_coolrates_table(table)
 !-------------------------------------------------------------------------
   allocate(table_mpi_sum(nbinT))
   call MPI_ALLREDUCE(table%rates,table_mpi_sum                           &
-                  ,nbinT,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+                  ,nbinT,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,ierr)
   table%rates = table_mpi_sum
   call MPI_ALLREDUCE(table%primes,table_mpi_sum                          &
-                  ,nbinT,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+                  ,nbinT,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,ierr)
   table%primes = table_mpi_sum
   deallocate(table_mpi_sum)
 

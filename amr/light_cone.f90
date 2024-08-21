@@ -71,7 +71,7 @@ subroutine output_cone()
   endif
 
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD, info)
+  call MPI_BARRIER(MPI_COMM_RAMSES, info)
 #endif
 
   conefile = trim(conedir)//'cone_'//trim(istep_str)//'.out'
@@ -103,7 +103,7 @@ subroutine output_cone()
   if(IOGROUPSIZECONE>0) then
      if (mod(myid-1,IOGROUPSIZECONE)/=0) then
         call MPI_RECV(dummy_io,1,MPI_INTEGER,myid-1-1,tag,&
-             & MPI_COMM_WORLD,MPI_STATUS_IGNORE,info2)
+             & MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info2)
      end if
   endif
 #endif
@@ -307,7 +307,7 @@ subroutine output_cone()
      if(mod(myid,IOGROUPSIZECONE)/=0 .and.(myid.lt.ncpu))then
         dummy_io=1
         call MPI_SEND(dummy_io,1,MPI_INTEGER,myid-1+1,tag, &
-             & MPI_COMM_WORLD,info2)
+             & MPI_COMM_RAMSES,info2)
      end if
   endif
 #endif

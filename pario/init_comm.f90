@@ -78,13 +78,13 @@ subroutine init_comm
         end if
      end if
   else
-     ! The consequence of this is that MPI_COMM_COMP=MPI_COMM_IOGROUP=MPI_COMM_WORLD
+     ! The consequence of this is that MPI_COMM_COMP=MPI_COMM_IOGROUP=MPI_COMM_RAMSES
      color_iogroup = 0
      color_comp    = 1
   end if
 
   ! Initialize communicators
-  call MPI_COMM_SPLIT(MPI_COMM_WORLD,color_iogroup,myid_world,MPI_COMM_IOGROUP,ierr)
+  call MPI_COMM_SPLIT(MPI_COMM_RAMSES,color_iogroup,myid_world,MPI_COMM_IOGROUP,ierr)
   call MPI_COMM_RANK(MPI_COMM_IOGROUP,myid_iogroup,ierr)
   call MPI_COMM_SIZE(MPI_COMM_IOGROUP,ncpu_iogroup,ierr)
   if(ncpu_io>0)then
@@ -94,7 +94,7 @@ subroutine init_comm
      myid_iogroup=MPI_UNDEFINED
   end if
 
-  call MPI_COMM_SPLIT(MPI_COMM_WORLD,color_comp,myid_world,MPI_COMM_COMP,ierr)
+  call MPI_COMM_SPLIT(MPI_COMM_RAMSES,color_comp,myid_world,MPI_COMM_COMP,ierr)
   call MPI_COMM_RANK(MPI_COMM_COMP,myid,ierr)
   if(color_comp==1)then
      myid    = myid+1

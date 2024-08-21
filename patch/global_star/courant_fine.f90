@@ -141,9 +141,9 @@ subroutine courant_fine(ilevel)
   comm_buffin(3)=eint_loc
   comm_buffin(4)=emag_loc
   call MPI_ALLREDUCE(comm_buffin,comm_buffout,4,MPI_DOUBLE_PRECISION,MPI_SUM,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
   call MPI_ALLREDUCE(dt_loc     ,dt_all      ,1,MPI_DOUBLE_PRECISION,MPI_MIN,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
   mass_all=comm_buffout(1)
   ekin_all=comm_buffout(2)
   eint_all=comm_buffout(3)
@@ -330,7 +330,7 @@ subroutine energy_fine(ilevel)
     comm_buffin(1)=vol_heat
     comm_buffin(2)=vol_cool
     call MPI_ALLREDUCE(comm_buffin,comm_buffout,2,MPI_DOUBLE_PRECISION,MPI_SUM,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
     vol_heat=comm_buffout(1)
     vol_cool=comm_buffout(2)
 #endif

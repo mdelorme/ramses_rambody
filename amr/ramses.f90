@@ -103,7 +103,7 @@ subroutine init_rambody
      end if
   end if
 
-  call MPI_Barrier(MPI_COMM_WORLD, ierr)
+  call MPI_Barrier(MPI_COMM_RAMSES, ierr)
 
 end subroutine init_rambody
 

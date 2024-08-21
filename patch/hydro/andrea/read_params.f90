@@ -66,7 +66,7 @@ subroutine read_params
   CALL getarg(1,infile)
   endif
 #ifndef WITHOUTMPI
-  call MPI_BCAST(infile,80,MPI_CHARACTER,0,MPI_COMM_WORLD,ierr)
+  call MPI_BCAST(infile,80,MPI_CHARACTER,0,MPI_COMM_RAMSES,ierr)
 #endif
 
   !-------------------------------------------------
@@ -179,7 +179,7 @@ subroutine read_params
   end if
 
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+  call MPI_BARRIER(MPI_COMM_RAMSES,ierr)
 #endif
 
 end subroutine read_params

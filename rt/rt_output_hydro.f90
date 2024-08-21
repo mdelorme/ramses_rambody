@@ -59,7 +59,7 @@ subroutine rt_backup_hydro(filename, filename_desc)
   if (IOGROUPSIZE > 0) then
      if (mod(myid-1, IOGROUPSIZE) /= 0) then
         call MPI_RECV(dummy_io, 1, MPI_INTEGER, myid-1-1, tag,&
-             & MPI_COMM_WORLD, MPI_STATUS_IGNORE, info2)
+             & MPI_COMM_RAMSES, MPI_STATUS_IGNORE, info2)
      end if
   end if
 #endif
@@ -125,7 +125,7 @@ subroutine rt_backup_hydro(filename, filename_desc)
      if (mod(myid, IOGROUPSIZE) /= 0 .and.(myid .lt. ncpu)) then
         dummy_io = 1
         call MPI_SEND(dummy_io, 1, MPI_INTEGER, myid-1+1, tag, &
-             & MPI_COMM_WORLD, info2)
+             & MPI_COMM_RAMSES, info2)
      end if
   end if
 #endif
@@ -251,13 +251,13 @@ SUBROUTINE output_rt_stats
      cells_all = 0 ; tot_all = 0 ; max_all = 0 ; loopCodes_all = 0
 #ifndef WITHOUTMPI
      call MPI_ALLREDUCE(n_cool_cells,         cells_all,     1, &
-          MPI_INTEGER,          MPI_SUM, MPI_COMM_WORLD, info)
+          MPI_INTEGER,          MPI_SUM, MPI_COMM_RAMSES, info)
      call MPI_ALLREDUCE(tot_cool_loopcnt,     tot_all,       1, &
-          MPI_INTEGER,          MPI_SUM, MPI_COMM_WORLD, info)
+          MPI_INTEGER,          MPI_SUM, MPI_COMM_RAMSES, info)
      call MPI_ALLREDUCE(max_cool_loopcnt,     max_all,       1, &
-          MPI_INTEGER,          MPI_MAX, MPI_COMM_WORLD, info)
+          MPI_INTEGER,          MPI_MAX, MPI_COMM_RAMSES, info)
      call MPI_ALLREDUCE(loopCodes,            loopCodes_all, 20, &
-          MPI_INTEGER,          MPI_MAX, MPI_COMM_WORLD, info)
+          MPI_INTEGER,          MPI_MAX, MPI_COMM_RAMSES, info)
      n_cool_cells     = cells_all ; tot_cool_loopcnt = tot_all
      max_cool_loopcnt = max_all   ; loopCodes        = loopCodes_all
 #endif
@@ -281,11 +281,11 @@ SUBROUTINE output_rt_stats
      step_nPhot_all = 0d0 ; step_nStar_all = 0d0 ; step_mStar_all = 0d0
 #ifndef WITHOUTMPI
      call MPI_ALLREDUCE(step_nPhot,           step_nPhot_all,  1,        &
-          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
      call MPI_ALLREDUCE(step_nStar,           step_nStar_all,  1,        &
-          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
      call MPI_ALLREDUCE(step_mStar,           step_mStar_all,  1,        &
-          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
      step_nPhot  = step_nPhot_all
      step_nStar  = step_nStar_all
      step_mStar  = step_mStar_all

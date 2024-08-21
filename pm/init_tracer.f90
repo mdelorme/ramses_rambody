@@ -20,9 +20,9 @@ subroutine init_tracer
 #ifndef WITHOUTMPI
     ! Broadcast the number of particles for the id of the tracers
 #ifdef LONGINT
-    call MPI_ALLREDUCE(npart, npart_tot, 1, MPI_INTEGER8, MPI_SUM, MPI_COMM_WORLD, info)
+    call MPI_ALLREDUCE(npart, npart_tot, 1, MPI_INTEGER8, MPI_SUM, MPI_COMM_RAMSES, info)
 #else
-    call MPI_ALLREDUCE(npart, npart_tot, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD, info)
+    call MPI_ALLREDUCE(npart, npart_tot, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_RAMSES, info)
 #endif
 #else
     npart_tot = npart
@@ -97,11 +97,11 @@ subroutine load_tracers
        endif
        buf_count=nvector*3
 #ifndef WITHOUTMPI
-       call MPI_BCAST(xx,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-       call MPI_BCAST(ii,nvector  ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-       call MPI_BCAST(ixx,nvector ,MPI_INTEGER1        ,0,MPI_COMM_WORLD,info)
-       call MPI_BCAST(eof,1       ,MPI_LOGICAL         ,0,MPI_COMM_WORLD,info)
-       call MPI_BCAST(jpart,1     ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
+       call MPI_BCAST(xx,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+       call MPI_BCAST(ii,nvector  ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+       call MPI_BCAST(ixx,nvector ,MPI_INTEGER1        ,0,MPI_COMM_RAMSES,info)
+       call MPI_BCAST(eof,1       ,MPI_LOGICAL         ,0,MPI_COMM_RAMSES,info)
+       call MPI_BCAST(jpart,1     ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
        call cmp_cpumap(xx,cc,jpart)
 #endif
 
@@ -136,9 +136,9 @@ subroutine load_tracers
     npart_cpu(myid)=count(is_tracer(typep(:)) .and. (levelp(:) > 0))
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
     npart_cpu(1)=npart_all(1)
 #endif
@@ -186,8 +186,8 @@ subroutine load_tracers_bin(iversion)
     end if
 
 #ifndef WITHOUTMPI
-    call MPI_BCAST(ntot, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, info)
-    call MPI_BCAST(tracer_mass, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, info)
+    call MPI_BCAST(ntot, 1, MPI_INTEGER, 0, MPI_COMM_RAMSES, info)
+    call MPI_BCAST(tracer_mass, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_RAMSES, info)
 #endif
 
     if (iversion == 2) then
@@ -339,9 +339,9 @@ subroutine load_tracers_inplace
 
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-    call MPI_ALLGATHER(ntracer_loc, 1, MPI_INTEGER, ntracer_cpu, 1, MPI_INTEGER, MPI_COMM_WORLD, info)
+    call MPI_ALLGATHER(ntracer_loc, 1, MPI_INTEGER, ntracer_cpu, 1, MPI_INTEGER, MPI_COMM_RAMSES, info)
 #else
-    call MPI_ALLGATHER(ntracer_loc, 1, MPI_INTEGER8, ntracer_cpu, 1, MPI_INTEGER8, MPI_COMM_WORLD, info)
+    call MPI_ALLGATHER(ntracer_loc, 1, MPI_INTEGER8, ntracer_cpu, 1, MPI_INTEGER8, MPI_COMM_RAMSES, info)
 #endif
 #endif
 
@@ -476,11 +476,11 @@ subroutine load_tracers_bin_v1(ntot)
        end if
 
 #ifndef WITHOUTMPI
-       call MPI_BCAST(xx1, nbuffer, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, info)
-       call MPI_BCAST(xx2, nbuffer, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, info)
-       call MPI_BCAST(xx3, nbuffer, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, info)
-       call MPI_BCAST(ii,  nbuffer, MPI_INTEGER         , 0, MPI_COMM_WORLD, info)
-       call MPI_BCAST(ixx, nbuffer, MPI_INTEGER         , 0, MPI_COMM_WORLD, info)
+       call MPI_BCAST(xx1, nbuffer, MPI_DOUBLE_PRECISION, 0, MPI_COMM_RAMSES, info)
+       call MPI_BCAST(xx2, nbuffer, MPI_DOUBLE_PRECISION, 0, MPI_COMM_RAMSES, info)
+       call MPI_BCAST(xx3, nbuffer, MPI_DOUBLE_PRECISION, 0, MPI_COMM_RAMSES, info)
+       call MPI_BCAST(ii,  nbuffer, MPI_INTEGER         , 0, MPI_COMM_RAMSES, info)
+       call MPI_BCAST(ixx, nbuffer, MPI_INTEGER         , 0, MPI_COMM_RAMSES, info)
 #endif
        tmpxx(1:nbuffer, 1) = xx1(1:nbuffer) * boxlen
        tmpxx(1:nbuffer, 2) = xx2(1:nbuffer) * boxlen
@@ -523,9 +523,9 @@ subroutine load_tracers_bin_v1(ntot)
     npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+    call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
     npart_cpu(1)=npart_all(1)
 #endif
@@ -592,8 +592,8 @@ subroutine load_tracers_bin_v2(ntot)
     end if
 
 #ifndef WITHOUTMPI
-    call MPI_BCAST(ntot, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, info)
-    call MPI_BCAST(tracer_mass, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, info)
+    call MPI_BCAST(ntot, 1, MPI_INTEGER, 0, MPI_COMM_RAMSES, info)
+    call MPI_BCAST(tracer_mass, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_RAMSES, info)
 #endif
 
     cpu_count(:) = 0
@@ -644,7 +644,7 @@ subroutine load_tracers_bin_v2(ntot)
     call MPI_SCATTER(&
          cpu_count, 1, MPI_INTEGER,     &
          cpu_count_loc, 1, MPI_INTEGER, &
-         0, MPI_COMM_WORLD, ierror)
+         0, MPI_COMM_RAMSES, ierror)
 #endif
     write(*,'(a,i10,a,i10,a,i6)') 'ntracer=',cpu_count_loc,' /',ntot, ' for PE=', myid
 
@@ -678,9 +678,9 @@ subroutine load_tracers_bin_v2(ntot)
 #ifndef WITHOUTMPI
        do icpu = 2, ncpu
           call MPI_ISEND(sender(icpu)%up, 3*cpu_count(icpu), MPI_DOUBLE_PRECISION, &
-               icpu-1, 0, MPI_COMM_WORLD, reqsend1(icpu), ierror)
+               icpu-1, 0, MPI_COMM_RAMSES, reqsend1(icpu), ierror)
           call MPI_ISEND(sender(icpu)%f,    cpu_count(icpu), MPI_INTEGER, &
-               icpu-1, 0, MPI_COMM_WORLD, reqsend2(icpu), ierror)
+               icpu-1, 0, MPI_COMM_RAMSES, reqsend2(icpu), ierror)
        end do
        receiver%up = sender(myid)%up
        receiver%f = sender(myid)%f
@@ -688,9 +688,9 @@ subroutine load_tracers_bin_v2(ntot)
     else
 #ifndef WITHOUTMPI
        call MPI_RECV(receiver%up, 3*cpu_count_loc, MPI_DOUBLE_PRECISION, &
-            0, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierror)
+            0, MPI_ANY_TAG, MPI_COMM_RAMSES, status, ierror)
        call MPI_RECV(receiver%f,    cpu_count_loc, MPI_INTEGER, &
-            0, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierror)
+            0, MPI_ANY_TAG, MPI_COMM_RAMSES, status, ierror)
 #endif
     end if
 
@@ -760,7 +760,7 @@ subroutine read_tracer_mass
     end if
     ! Broadcast to all CPUs the value of the tracer mass
 #ifndef WITHOUTMPI
-    call MPI_BCAST(tracer_mass, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, info)
+    call MPI_BCAST(tracer_mass, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_RAMSES, info)
 #endif
     if (myid == 1) write(*, *) 'Using a tracer mass of ', tracer_mass
 end subroutine read_tracer_mass

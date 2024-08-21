@@ -139,8 +139,8 @@ recursive subroutine amr_step(ilevel,icount)
      output_now_all = output_now
 #else
      ! check if any of the processes received a signal for output
-     call MPI_BARRIER(MPI_COMM_WORLD,mpi_err)
-     call MPI_ALLREDUCE(output_now,output_now_all,1,MPI_LOGICAL,MPI_LOR,MPI_COMM_WORLD,mpi_err)
+     call MPI_BARRIER(MPI_COMM_RAMSES,mpi_err)
+     call MPI_ALLREDUCE(output_now,output_now_all,1,MPI_LOGICAL,MPI_LOR,MPI_COMM_RAMSES,mpi_err)
 #endif
      if(mod(nstep_coarse,foutput)==0.or.aexp>=aout(iout).or.t>=tout(iout).or.output_now_all.EQV..true.)then
                                call timer('io','start')

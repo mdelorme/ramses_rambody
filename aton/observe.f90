@@ -113,7 +113,7 @@ subroutine observe_level(ilevel)
 
   ! Compute global quantities
   call MPI_ALLREDUCE(local_quantity,total_quantity,observe_num_quantity, &
-       & MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+       & MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 
   observe_quantity = total_quantity
 end subroutine observe_level

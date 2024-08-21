@@ -102,7 +102,7 @@ contains
          ! compute total load for comp. box
          mytmp=bisec_hist(1,bisec_nres)   ! total load for current cpu
 #ifndef WITHOUTMPI
-         call MPI_ALLREDUCE(mytmp,tottmp,1,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,ierr)
+         call MPI_ALLREDUCE(mytmp,tottmp,1,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,ierr)
 #else
          tottmp=mytmp
 #endif
@@ -195,7 +195,7 @@ contains
                end do
                ! sum the local left loads from every cpu into load1
 #ifndef WITHOUTMPI
-               call MPI_ALLREDUCE(myload,load1,nbileafnodes,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,ierr)
+               call MPI_ALLREDUCE(myload,load1,nbileafnodes,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,ierr)
 #else
                load1=myload
 #endif
@@ -231,7 +231,7 @@ contains
 
                ! sum up all differential loads into totload
 #ifndef WITHOUTMPI
-               call MPI_ALLREDUCE(myload,totload,nbileafnodes,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,ierr)
+               call MPI_ALLREDUCE(myload,totload,nbileafnodes,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,ierr)
 #else
                totload=myload
 #endif

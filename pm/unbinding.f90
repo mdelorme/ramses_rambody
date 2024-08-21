@@ -123,7 +123,7 @@ subroutine unbinding()
   if(ivar_clump==0)then
     partm_common=MINVAL(mp, MASK=(mp.GT.0.))
 #ifndef WITHOUTMPI  
-    call MPI_ALLREDUCE(partm_common,partm_common_all,1,MPI_DOUBLE_PRECISION,MPI_MIN,MPI_COMM_WORLD,info)
+    call MPI_ALLREDUCE(partm_common,partm_common_all,1,MPI_DOUBLE_PRECISION,MPI_MIN,MPI_COMM_RAMSES,info)
     partm_common=partm_common_all  
 #endif
   else
@@ -222,7 +222,7 @@ subroutine unbinding()
 
 #ifndef WITHOUTMPI
         ! sync with other processors whether you need to repeat loop
-        call MPI_ALLREDUCE(loop_again, loop_again_global, 1, MPI_LOGICAL, MPI_LOR,MPI_COMM_WORLD, info)
+        call MPI_ALLREDUCE(loop_again, loop_again_global, 1, MPI_LOGICAL, MPI_LOR,MPI_COMM_RAMSES, info)
         loop_again=loop_again_global
 #endif
 
@@ -297,7 +297,7 @@ subroutine unbinding()
         !---------------------
         if (clinfo) then
 #ifndef WITHOUTMPI
-            call MPI_ALLREDUCE(niterunbound, niterunbound_tot, 1, MPI_INTEGER, MPI_SUM,MPI_COMM_WORLD, info)
+            call MPI_ALLREDUCE(niterunbound, niterunbound_tot, 1, MPI_INTEGER, MPI_SUM,MPI_COMM_RAMSES, info)
 #else
             niterunbound_tot=niterunbound
 #endif
@@ -345,8 +345,8 @@ subroutine unbinding()
 
     if (clinfo) then
 #ifndef WITHOUTMPI
-      call MPI_ALLREDUCE(nunbound, nunbound_tot, 1, MPI_INTEGER, MPI_SUM,MPI_COMM_WORLD, info)
-      call MPI_ALLREDUCE(candidates, candidates_tot, 1, MPI_INTEGER, MPI_SUM,MPI_COMM_WORLD, info)
+      call MPI_ALLREDUCE(nunbound, nunbound_tot, 1, MPI_INTEGER, MPI_SUM,MPI_COMM_RAMSES, info)
+      call MPI_ALLREDUCE(candidates, candidates_tot, 1, MPI_INTEGER, MPI_SUM,MPI_COMM_RAMSES, info)
 #else
       nunbound_tot=nunbound
       candidates_tot=candidates
@@ -889,7 +889,7 @@ subroutine get_cmp_iter()
 
 #ifndef WITHOUTMPI
     ! get system-wide levelmax
-    call MPI_ALLREDUCE(levelmax,levelmax_glob, 1, MPI_INTEGER, MPI_MAX,MPI_COMM_WORLD, info)
+    call MPI_ALLREDUCE(levelmax,levelmax_glob, 1, MPI_INTEGER, MPI_MAX,MPI_COMM_RAMSES, info)
 
     levelmax=levelmax_glob
 #endif
@@ -1038,7 +1038,7 @@ subroutine get_cmp_noiter()
 
 #ifndef WITHOUTMPI
     ! get system-wide levelmax
-    call MPI_ALLREDUCE(levelmax,levelmax_glob, 1, MPI_INTEGER, MPI_MAX,MPI_COMM_WORLD, info)
+    call MPI_ALLREDUCE(levelmax,levelmax_glob, 1, MPI_INTEGER, MPI_MAX,MPI_COMM_RAMSES, info)
 
     levelmax=levelmax_glob
 #endif
@@ -2036,11 +2036,11 @@ subroutine dissolve_small_clumps(ilevel, for_halos, initial_cleanup)
 #ifndef WITHOUTMPI
     buf = (/killed_tot, appended_tot/)
     if (myid == 1) then
-      call MPI_REDUCE(MPI_IN_PLACE, buf, 2, MPI_INTEGER,MPI_SUM, 0, MPI_COMM_WORLD, info)
+      call MPI_REDUCE(MPI_IN_PLACE, buf, 2, MPI_INTEGER,MPI_SUM, 0, MPI_COMM_RAMSES, info)
       killed_tot = buf(1)
       appended_tot = buf(2)
     else
-      call MPI_REDUCE(buf, buf, 2, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD, info)
+      call MPI_REDUCE(buf, buf, 2, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_RAMSES, info)
     endif
 #endif
 

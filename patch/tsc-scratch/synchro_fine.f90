@@ -68,7 +68,7 @@ subroutine synchro_fine(ilevel)
   if(sink)then
      if(nsink>0)then
 #ifndef WITHOUTMPI
-        call MPI_ALLREDUCE(fsink_new,fsink_all,nsinkmax*ndim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(fsink_new,fsink_all,nsinkmax*ndim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
         fsink_all=fsink_new
 #endif
@@ -202,7 +202,7 @@ subroutine synchro_fine_static(ilevel)
   if(sink)then
      if(nsink>0)then
 #ifndef WITHOUTMPI
-        call MPI_ALLREDUCE(fsink_new,fsink_all,nsinkmax*ndim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(fsink_new,fsink_all,nsinkmax*ndim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
         fsink_all=fsink_new
 #endif

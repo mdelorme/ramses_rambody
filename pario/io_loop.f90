@@ -278,7 +278,7 @@ subroutine local_output
   integer ierr
 
   print *,'Error: local_output does not exist anymore!'
-  call MPI_ABORT(MPI_COMM_WORLD,1,ierr)
+  call MPI_ABORT(MPI_COMM_RAMSES,1,ierr)
 end subroutine local_output
 
 subroutine local_backup

@@ -292,7 +292,7 @@ subroutine kill_gas_part(ilevel)
 
 #ifndef WITHOUTMPI
   ! Give an array of number of gas on each cpu available to all cpus
-  call MPI_ALLREDUCE(npart_cpu,npart_cpu_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_cpu,npart_cpu_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
   npart_all=sum(npart_cpu_all(1:ncpu))
   if(npart_all>0) then
@@ -305,7 +305,7 @@ subroutine kill_gas_part(ilevel)
 npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
   ! Give an array of number of gas on each cpu available to all cpus
-  call MPI_ALLREDUCE(npart_cpu,npart_cpu_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_cpu,npart_cpu_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
   npart_all=sum(npart_cpu_all(1:ncpu))
   if(npart_all>0) then

@@ -203,13 +203,13 @@ SUBROUTINE output_rt_stats
      cells_all=0 ; tot_all=0 ; max_all=0 ; loopCodes_all=0
 #ifndef WITHOUTMPI
      call MPI_ALLREDUCE(n_cool_cells,         cells_all,     1, &
-          MPI_INTEGER,          MPI_SUM, MPI_COMM_WORLD, info)
+          MPI_INTEGER,          MPI_SUM, MPI_COMM_RAMSES, info)
      call MPI_ALLREDUCE(tot_cool_loopcnt,     tot_all,       1, &
-          MPI_INTEGER,          MPI_SUM, MPI_COMM_WORLD, info)
+          MPI_INTEGER,          MPI_SUM, MPI_COMM_RAMSES, info)
      call MPI_ALLREDUCE(max_cool_loopcnt,     max_all,       1, &
-          MPI_INTEGER,          MPI_MAX, MPI_COMM_WORLD, info)
+          MPI_INTEGER,          MPI_MAX, MPI_COMM_RAMSES, info)
      call MPI_ALLREDUCE(loopCodes,            loopCodes_all, 4, &
-          MPI_INTEGER,          MPI_MAX, MPI_COMM_WORLD, info)
+          MPI_INTEGER,          MPI_MAX, MPI_COMM_RAMSES, info)
      n_cool_cells     = cells_all ; tot_cool_loopcnt = tot_all
      max_cool_loopcnt = max_all   ; loopCodes        = loopCodes_all
 #endif
@@ -233,11 +233,11 @@ SUBROUTINE output_rt_stats
      step_nPhot_all=0d0 ; step_nStar_all=0d0 ; ; step_mStar_all=0d0
 #ifndef WITHOUTMPI
      call MPI_ALLREDUCE(step_nPhot,           step_nPhot_all,  1,        &
-          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
      call MPI_ALLREDUCE(step_nStar,           step_nStar_all,  1,        &
-          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
      call MPI_ALLREDUCE(step_mStar,           step_mStar_all,  1,        &
-          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+          MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
      step_nPhot  = step_nPhot_all
      step_nStar  = step_nStar_all
      step_mStar  = step_mStar_all

@@ -139,13 +139,13 @@ subroutine courant_fine(ilevel)
   ! Compute global quantities
 #ifndef WITHOUTMPI
   call MPI_ALLREDUCE(mass_loc,mass_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
   call MPI_ALLREDUCE(ekin_loc,ekin_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
   call MPI_ALLREDUCE(eint_loc,eint_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
   call MPI_ALLREDUCE(  dt_loc,  dt_all,1,MPI_DOUBLE_PRECISION,MPI_MIN,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   mass_all=mass_loc

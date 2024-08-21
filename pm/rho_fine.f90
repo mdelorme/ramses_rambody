@@ -171,7 +171,7 @@ subroutine rho_fine(ilevel,icount)
 #ifndef WITHOUTMPI
   if(ilevel==levelmin)then
      multipole_in=multipole
-     call MPI_ALLREDUCE(multipole_in,multipole_out,ndim+1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+     call MPI_ALLREDUCE(multipole_in,multipole_out,ndim+1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
      multipole=multipole_out
   endif
 #endif

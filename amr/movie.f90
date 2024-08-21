@@ -158,7 +158,7 @@ subroutine output_frame()
           call mkdir(trim(moviedir),mode,ierr)
        endif
 #ifndef WITHOUTMPI
-       call MPI_BCAST(ierr,1,MPI_INTEGER,0,MPI_COMM_WORLD,info)
+       call MPI_BCAST(ierr,1,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
        if(ierr.ne.0 .and. ierr.ne.127)then
           write(*,*) 'Error - Could not create ',trim(moviedir)
           call MPI_ABORT(MPI_COMM_WORLD,1,info)
@@ -171,7 +171,7 @@ subroutine output_frame()
     infofile = trim(moviedir)//'info_'//trim(istep_str)//'.txt'
     if(myid==1)call output_info(infofile)
 #ifndef WITHOUTMPI
-    call MPI_BARRIER(MPI_COMM_WORLD,info)
+    call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
     
     ! sink filename
@@ -1028,11 +1028,11 @@ subroutine output_frame()
           enddo
        enddo
        if(is_min)then
-          call MPI_REDUCE(data_single,data_single_all,nw_frame*nh_frame,MPI_DOUBLE_PRECISION,MPI_MIN,0,MPI_COMM_WORLD,info)
+          call MPI_REDUCE(data_single,data_single_all,nw_frame*nh_frame,MPI_DOUBLE_PRECISION,MPI_MIN,0,MPI_COMM_RAMSES,info)
        elseif(is_max)then
-          call MPI_REDUCE(data_single,data_single_all,nw_frame*nh_frame,MPI_DOUBLE_PRECISION,MPI_MAX,0,MPI_COMM_WORLD,info)
+          call MPI_REDUCE(data_single,data_single_all,nw_frame*nh_frame,MPI_DOUBLE_PRECISION,MPI_MAX,0,MPI_COMM_RAMSES,info)
        else
-          call MPI_REDUCE(data_single,data_single_all,nw_frame*nh_frame,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,info)
+          call MPI_REDUCE(data_single,data_single_all,nw_frame*nh_frame,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_RAMSES,info)
        endif
        ! Fill master pid frame
        if(myid==1)then
@@ -1058,7 +1058,7 @@ subroutine output_frame()
              i = i+1
           enddo
        enddo
-       call MPI_REDUCE(data_single,data_single_all,nw_frame*nh_frame,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,info)
+       call MPI_REDUCE(data_single,data_single_all,nw_frame*nh_frame,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_RAMSES,info)
        if(myid==1)then
           i=1
           do ii=1,nw_frame

@@ -55,9 +55,9 @@ subroutine rad_step(time_step_user)
   call timer_start(total_timer)
   call timer_stop(ramses_timer)
 
-  call MPI_COMM_RANK(MPI_COMM_WORLD,myid,ierr)
+  call MPI_COMM_RANK(MPI_COMM_RAMSES,myid,ierr)
   myid = myid + 1  ! We need a 1-based id.
-  call MPI_COMM_SIZE(MPI_COMM_WORLD,ncpu,ierr)
+  call MPI_COMM_SIZE(MPI_COMM_RAMSES,ncpu,ierr)
 
   call units(scale_l,scale_t,scale_d,scale_v,scale_nH,scale_T2)
   time_step_s = time_step_user * scale_t
@@ -305,7 +305,7 @@ subroutine start_mpi(dx)
         allocate(emission(icpu,1)%u_radiation(1:sendbuf(icpu),1:7))
      end if
   end do
-  call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_WORLD,info)
+  call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_RAMSES,info)
   do icpu=1,ncpu
      if(recvbuf(icpu)>0)then
         allocate(reception(icpu,1)%u_radiation(1:recvbuf(icpu),1:7))
@@ -347,7 +347,7 @@ subroutine start_mpi(dx)
           & MPI_DOUBLE_PRECISION, &
           & icpu-1, &
           & tag, &
-          & MPI_COMM_WORLD, &
+          & MPI_COMM_RAMSES, &
           & receive_request(n_receive_request), &
           & info)
   end do
@@ -363,7 +363,7 @@ subroutine start_mpi(dx)
           & MPI_DOUBLE_PRECISION, &
           & icpu-1, &
           & tag, &
-          & MPI_COMM_WORLD, &
+          & MPI_COMM_RAMSES, &
           & send_request(n_send_request), &
           & info)
   end do
@@ -400,7 +400,7 @@ subroutine start_mpi(dx)
           & MPI_DOUBLE_PRECISION, &
           & icpu-1, &
           & tag, &
-          & MPI_COMM_WORLD, &
+          & MPI_COMM_RAMSES, &
           & receive_request(n_receive_request), &
           & info)
   end do
@@ -416,7 +416,7 @@ subroutine start_mpi(dx)
           & MPI_DOUBLE_PRECISION, &
           & icpu-1, &
           & tag, &
-          & MPI_COMM_WORLD, &
+          & MPI_COMM_RAMSES, &
           & send_request(n_send_request), &
           & info)
   end do
@@ -703,7 +703,7 @@ subroutine fill_hydro_from_cpu_field(dx)
           & MPI_DOUBLE_PRECISION, &
           & icpu-1, &
           & tag, &
-          & MPI_COMM_WORLD, &
+          & MPI_COMM_RAMSES, &
           & receive_request(n_receive_request), &
           & info)
   end do
@@ -719,7 +719,7 @@ subroutine fill_hydro_from_cpu_field(dx)
           & MPI_DOUBLE_PRECISION, &
           & icpu-1, &
           & tag, &
-          & MPI_COMM_WORLD, &
+          & MPI_COMM_RAMSES, &
           & send_request(n_send_request), &
           & info)
   end do

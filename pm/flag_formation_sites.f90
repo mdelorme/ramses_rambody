@@ -256,7 +256,7 @@ subroutine flag_formation_sites
         end do
 #ifndef WITHOUTMPI
         do icpu=2,ncpu
-           call MPI_RECV(table_properties,npeaks_max*20,MPI_DOUBLE,icpu-1,tag,MPI_COMM_WORLD,MPI_STATUS_IGNORE,info)
+           call MPI_RECV(table_properties,npeaks_max*20,MPI_DOUBLE,icpu-1,tag,MPI_COMM_RAMSES,MPI_STATUS_IGNORE,info)
            do j=1,npeaks_max
               if(table_properties(j,2)>relevance_threshold.and.table_properties(j,4)>0.)then
                  write(*,'(I7,1X,1PE10.3,1X,I2,1X,I4,1X,12(1PE12.4,1X),I1,3X,I1)')int(table_properties(j,1)),table_properties(j,2)&
@@ -265,7 +265,7 @@ subroutine flag_formation_sites
            end do
         end do
      else
-        call MPI_SEND(table_properties,npeaks_max*20,MPI_DOUBLE,0,tag,MPI_COMM_WORLD,info)
+        call MPI_SEND(table_properties,npeaks_max*20,MPI_DOUBLE,0,tag,MPI_COMM_RAMSES,info)
 #endif
      endif
 

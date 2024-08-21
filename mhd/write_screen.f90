@@ -33,7 +33,7 @@ subroutine write_screen
 
 #if NDIM==1
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD,info)
+  call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
 
   ncell=0
@@ -67,7 +67,7 @@ subroutine write_screen
   ncell_loc(myid)=ncell
 #ifndef WITHOUTMPI
   call MPI_ALLREDUCE(ncell_loc,ncell_all,ncpu,MPI_INTEGER,MPI_SUM,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   ncell_all=ncell_loc
@@ -185,30 +185,30 @@ subroutine write_screen
   end do
 
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(rr,rr_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(mm,mm_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(dd,dd_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(dtot,dtot_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(et,et_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(ei,ei_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(em,em_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(ek,ek_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(uu,uu_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(vv,vv_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(ww,ww_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(AA,AA_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(BB,BB_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(CC,CC_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(gg,gg_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(ll,ll_all,ncell,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
-  call MPI_ALLREDUCE(rr,rr_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(rr,rr_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(mm,mm_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(dd,dd_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(dtot,dtot_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(et,et_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(ei,ei_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(em,em_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(ek,ek_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(uu,uu_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(vv,vv_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(ww,ww_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(AA,AA_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(BB,BB_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(CC,CC_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(gg,gg_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(ll,ll_all,ncell,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
+  call MPI_ALLREDUCE(rr,rr_all,ncell,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   rr=rr_all; mm=mm_all; dd=dd_all; dtot=dtot_all
   et=et_all; ek=ek_all; em=em_all; ei=ei_all
   uu=uu_all; vv=vv_all; ww=ww_all
   AA=AA_all; BB=BB_all; CC=CC_all
   gg=gg_all; ll=ll_all
 #if NENER>0
-  call MPI_ALLREDUCE(prad,prad_all,ncell*nener,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(prad,prad_all,ncell*nener,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   prad=prad_all
 #endif
 #endif
@@ -271,7 +271,7 @@ subroutine write_screen
   end if
 
 #ifndef WITHOUTMPI
-  call MPI_BARRIER(MPI_COMM_WORLD,info)
+  call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
 
 #endif

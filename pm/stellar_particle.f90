@@ -138,8 +138,8 @@ subroutine create_stellar(ncreate, nbuf, id_new)
 
     ! Communicate data
 #ifndef WITHOUTMPI
-    call MPI_ALLGATHERV(  mnew_loc, ncreate_loc, MPI_DOUBLE_PRECISION, mnew, narr, displ, MPI_DOUBLE_PRECISION, MPI_COMM_WORLD, info)
-    call MPI_ALLGATHERV( ltnew_loc, ncreate_loc, MPI_DOUBLE_PRECISION, ltnew, narr, displ, MPI_DOUBLE_PRECISION, MPI_COMM_WORLD, info)
+    call MPI_ALLGATHERV(  mnew_loc, ncreate_loc, MPI_DOUBLE_PRECISION, mnew, narr, displ, MPI_DOUBLE_PRECISION, MPI_COMM_RAMSES, info)
+    call MPI_ALLGATHERV( ltnew_loc, ncreate_loc, MPI_DOUBLE_PRECISION, ltnew, narr, displ, MPI_DOUBLE_PRECISION, MPI_COMM_RAMSES, info)
 #else
     mnew = mnew_loc
     ltnew = ltnew_loc
@@ -205,7 +205,7 @@ subroutine delete_stellar(flag_delete)
     integer:: info
 
     ! Make sure every process deletes the same objects
-    call MPI_ALLREDUCE(flag_delete, flag_any, nstellar, MPI_LOGICAL, MPI_LOR, MPI_COMM_WORLD, info)
+    call MPI_ALLREDUCE(flag_delete, flag_any, nstellar, MPI_LOGICAL, MPI_LOR, MPI_COMM_RAMSES, info)
 #else
     flag_any = flag_delete
 #endif

@@ -57,7 +57,7 @@ subroutine init_tree
   nextp(tailp_free)=0
 #ifndef WITHOUTMPI
   call MPI_ALLREDUCE(numbp_free,numbp_free_tot,1,MPI_INTEGER,MPI_MIN,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
 #endif
 #ifdef WITHOUTMPI
   numbp_free_tot=numbp_free
@@ -799,7 +799,7 @@ subroutine virtual_tree_fine(ilevel)
   end do
 
   ! Communicate virtual particle number to parent cpu
-  call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_WORLD,info)
+  call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_RAMSES,info)
 
 #ifdef LIGHT_MPI_COMM
   ! Count particles
@@ -857,17 +857,17 @@ subroutine virtual_tree_fine(ilevel)
 #ifndef LONGINT
      call MPI_IRECV(emission_part(ilevel)%f8(1,offset_np),buf_count, &
           & MPI_INTEGER,emission_part(ilevel)%cpuid(iactive)-1, &
-          & tagf,MPI_COMM_WORLD,reqrecv(countrecv),info)
+          & tagf,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #else
      call MPI_IRECV(emission_part(ilevel)%f8(1,offset_np),buf_count, &
           & MPI_INTEGER8,emission_part(ilevel)%cpuid(iactive)-1, &
-          & tagf,MPI_COMM_WORLD,reqrecv(countrecv),info)
+          & tagf,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #endif
      buf_count=ncache*particle_data_width
      countrecv=countrecv+1
      call MPI_IRECV(emission_part(ilevel)%u(1,offset_np),buf_count, &
           & MPI_DOUBLE_PRECISION,emission_part(ilevel)%cpuid(iactive)-1, &
-          & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+          & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
      offset_np=offset_np+ncache
   end do
 #else
@@ -881,17 +881,17 @@ subroutine virtual_tree_fine(ilevel)
 #ifndef LONGINT
         call MPI_IRECV(emission(icpu,ilevel)%fp,buf_count, &
              & MPI_INTEGER,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqrecv(countrecv),info)
+             & tagf,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #else
         call MPI_IRECV(emission(icpu,ilevel)%fp,buf_count, &
              & MPI_INTEGER8,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqrecv(countrecv),info)
+             & tagf,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #endif
         buf_count=ncache*particle_data_width
         countrecv=countrecv+1
         call MPI_IRECV(emission(icpu,ilevel)%up,buf_count, &
              & MPI_DOUBLE_PRECISION,icpu-1,&
-             & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+             & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
      end if
   end do
 #endif
@@ -907,32 +907,32 @@ subroutine virtual_tree_fine(ilevel)
 #ifndef LONGINT
         call MPI_ISEND(reception(icpu,ilevel)%pcomm%f8,buf_count, &
              & MPI_INTEGER,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagf,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
         call MPI_ISEND(reception(icpu,ilevel)%pcomm%f8,buf_count, &
              & MPI_INTEGER8,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagf,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
         buf_count=ncache*particle_data_width
         countsend=countsend+1
         call MPI_ISEND(reception(icpu,ilevel)%pcomm%u,buf_count, &
              & MPI_DOUBLE_PRECISION,icpu-1,&
-             & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
 #ifndef LONGINT
         call MPI_ISEND(reception(icpu,ilevel)%fp,buf_count, &
              & MPI_INTEGER,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagf,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
         call MPI_ISEND(reception(icpu,ilevel)%fp,buf_count, &
              & MPI_INTEGER8,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagf,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
         buf_count=ncache*particle_data_width
         countsend=countsend+1
         call MPI_ISEND(reception(icpu,ilevel)%up,buf_count, &
              & MPI_DOUBLE_PRECISION,icpu-1,&
-             & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
      end if
   end do
@@ -954,7 +954,7 @@ subroutine virtual_tree_fine(ilevel)
   call MPI_WAITALL(countsend,reqsend,statuses,info)
 
   call MPI_ALLREDUCE(numbp_free,numbp_free_tot,1,MPI_INTEGER,MPI_MIN,&
-       & MPI_COMM_WORLD,info)
+       & MPI_COMM_RAMSES,info)
   ok_free=(numbp_free-ncache_tot)>=0
   if(.not. ok_free)then
      write(*,*)'No more free memory for particles'
@@ -970,7 +970,7 @@ subroutine virtual_tree_fine(ilevel)
 #endif
      write(*,*)'============================'
      write(*,*)reception(1:ncpu,ilevel)%npart
-     call MPI_ABORT(MPI_COMM_WORLD,1,info)
+     call MPI_ABORT(MPI_COMM_RAMSES,1,info)
   end if
 
   ! Scatter new particles from communication buffer

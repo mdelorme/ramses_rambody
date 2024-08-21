@@ -865,17 +865,17 @@ subroutine virtual_tree_fine(ilevel)
 #ifndef LONGINT
      call MPI_IRECV(emission_part(ilevel)%f8(1,offset_np),buf_count, &
           & MPI_INTEGER,emission_part(ilevel)%cpuid(iactive)-1, &
-          & tagf,MPI_COMM_WORLD,reqrecv(countrecv),info)
+          & tagf,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #else
      call MPI_IRECV(emission_part(ilevel)%f8(1,offset_np),buf_count, &
           & MPI_INTEGER8,emission_part(ilevel)%cpuid(iactive)-1, &
-          & tagf,MPI_COMM_WORLD,reqrecv(countrecv),info)
+          & tagf,MPI_COMM_RAMSES,reqrecv(countrecv),info)
 #endif
      buf_count=ncache*particle_data_width
      countrecv=countrecv+1
      call MPI_IRECV(emission_part(ilevel)%u(1,offset_np),buf_count, &
           & MPI_DOUBLE_PRECISION,emission_part(ilevel)%cpuid(iactive)-1, &
-          & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+          & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
      offset_np=offset_np+ncache
   end do
 #else
@@ -915,17 +915,17 @@ subroutine virtual_tree_fine(ilevel)
 #ifndef LONGINT
         call MPI_ISEND(reception(icpu,ilevel)%pcomm%f8,buf_count, &
              & MPI_INTEGER,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagf,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
         call MPI_ISEND(reception(icpu,ilevel)%pcomm%f8,buf_count, &
              & MPI_INTEGER8,icpu-1,&
-             & tagf,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagf,MPI_COMM_RAMSES,reqsend(countsend),info)
 #endif
         buf_count=ncache*particle_data_width
         countsend=countsend+1
         call MPI_ISEND(reception(icpu,ilevel)%pcomm%u,buf_count, &
              & MPI_DOUBLE_PRECISION,icpu-1,&
-             & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+             & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
 #else
 #ifndef LONGINT
         call MPI_ISEND(reception(icpu,ilevel)%fp,buf_count, &
@@ -978,7 +978,7 @@ subroutine virtual_tree_fine(ilevel)
 #endif
      write(*,*)'============================'
      write(*,*)reception(1:ncpu,ilevel)%npart
-     call MPI_ABORT(MPI_COMM_WORLD,1,info)
+     call MPI_ABORT(MPI_COMM_RAMSES,1,info)
   end if
 
   ! Scatter new particles from communication buffer

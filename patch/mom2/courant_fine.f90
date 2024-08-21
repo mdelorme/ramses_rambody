@@ -130,9 +130,9 @@ subroutine courant_fine(ilevel)
   comm_buffin(2)=ekin_loc
   comm_buffin(3)=eint_loc
   call MPI_ALLREDUCE(comm_buffin,comm_buffout,3,MPI_DOUBLE_PRECISION,MPI_SUM,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
   call MPI_ALLREDUCE(dt_loc,dt_all,1,MPI_DOUBLE_PRECISION,MPI_MIN,&
-       &MPI_COMM_WORLD,info)
+       &MPI_COMM_RAMSES,info)
   mass_all=comm_buffout(1)
   ekin_all=comm_buffout(2)
   eint_all=comm_buffout(3)
@@ -253,7 +253,7 @@ subroutine check_cons(ilevel)
   comm_buffin(1)=mass_loc
   comm_buffin(2)=ekin_loc
   comm_buffin(3)=eint_loc
-  call MPI_ALLREDUCE(comm_buffin,comm_buffout,3,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(comm_buffin,comm_buffout,3,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   mass_all=comm_buffout(1)
   ekin_all=comm_buffout(2)
   eint_all=comm_buffout(3)

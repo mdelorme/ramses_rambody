@@ -269,8 +269,8 @@ subroutine make_sn_stellar
     ! End loop over levels
 
 #ifndef WITHOUTMPI
-    call MPI_ALLREDUCE(pgas_check,pgas_check_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
-    call MPI_ALLREDUCE(egas_check,egas_check_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+    call MPI_ALLREDUCE(pgas_check,pgas_check_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
+    call MPI_ALLREDUCE(egas_check,egas_check_all,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
     pgas_check_all = pgas_check
     egas_check_all = egas_check
@@ -435,7 +435,7 @@ subroutine sphere_average(navg, center, radius, rpow, upow, avg)
     ! End loop over levels
 
 #ifndef WITHOUTMPI
-    call MPI_ALLREDUCE(avg_loc, avg, navg, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, info)
+    call MPI_ALLREDUCE(avg_loc, avg, navg, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_RAMSES, info)
 #else
     avg = avg_loc
 #endif

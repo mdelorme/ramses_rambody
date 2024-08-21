@@ -486,7 +486,7 @@ subroutine cmp_new_cpu_map
      cost_loc(myid+(isub-1)*ncpu) = dble(npart_sub(isub))
   end do
 #ifndef WITHOUTMPI
-  call MPI_ALLREDUCE(cost_loc,cost_old,ndomain,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(cost_loc,cost_old,ndomain,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
   incost_tot = 0D0
   incost_old(0) = 0D0
@@ -532,12 +532,12 @@ subroutine cmp_new_cpu_map
 #ifdef QUADHILBERT
   bigdbl= real(bound_key_loc,kind=8)
   bigtmp= 0.0d0
-  call MPI_ALLREDUCE(bigdbl,bigtmp,ndomain+1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(bigdbl,bigtmp,ndomain+1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
   ! if call to mpi_sum with mpi_type=mpi_real16 is supported by mpi_allreduce we can do:
-  !call MPI_ALLREDUCE(bound_key_loc,bound_key2,ndomain+1,MPI_REAL16,MPI_SUM,MPI_COMM_WORLD,info)
+  !call MPI_ALLREDUCE(bound_key_loc,bound_key2,ndomain+1,MPI_REAL16,MPI_SUM,MPI_COMM_RAMSES,info)
   bound_key2         = real(bigtmp,kind=qdp)
 #else
-  call MPI_ALLREDUCE(bound_key_loc,bound_key2,ndomain+1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(bound_key_loc,bound_key2,ndomain+1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
 #endif
   bound_key2(0)      =order_all_min

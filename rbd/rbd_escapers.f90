@@ -211,7 +211,7 @@ subroutine rbd_push_escapers
         if (nnew_tot /= rbd_n_escapers) then
            write(6,*) 'ERROR : Number of pushed particles is different than number of escapers !'
            call flush(6)
-           call MPI_Abort(MPI_COMM_WORLD, 165)
+           call MPI_Abort(MPI_COMM_RAMSES, 165)
         end if
      end if
 

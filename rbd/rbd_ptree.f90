@@ -1034,7 +1034,7 @@ subroutine rbd_compute_gc_owner(add_virtual)
   if (myid == 1 .and. rbd_gc_owner == -1) then
      write(6,*) 'ERROR : Rambody guiding center has disappeared !', add_virtual
      call flush(6)
-     call MPI_Abort(MPI_COMM_WORLD, 111, ierr)
+     call MPI_Abort(MPI_COMM_RAMSES, 111, ierr)
   end if
 
 end subroutine rbd_compute_gc_owner

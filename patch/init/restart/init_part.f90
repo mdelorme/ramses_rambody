@@ -444,7 +444,7 @@ subroutine init_part
                     endif
                     buf_count=n1(ilevel)*n2(ilevel)
 #ifndef WITHOUTMPI
-                    call MPI_BCAST(init_plane,buf_count,MPI_REAL,0,MPI_COMM_WORLD,info)
+                    call MPI_BCAST(init_plane,buf_count,MPI_REAL,0,MPI_COMM_RAMSES,info)
 #endif
 
                     if(active(ilevel)%ngrid>0)then
@@ -471,7 +471,7 @@ subroutine init_part
                        endif
                        buf_count=n1(ilevel)*n2(ilevel)
 #ifndef WITHOUTMPI
-                       call MPI_BCAST(init_plane_x,buf_count,MPI_REAL,0,MPI_COMM_WORLD,info)
+                       call MPI_BCAST(init_plane_x,buf_count,MPI_REAL,0,MPI_COMM_RAMSES,info)
 #endif
                        if(active(ilevel)%ngrid>0)then
                           if(i3.ge.i3_min.and.i3.le.i3_max)then
@@ -623,7 +623,7 @@ subroutine init_part
         end do
 
         ! Communicate virtual particle number to parent cpu
-        call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_WORLD,info)
+        call MPI_ALLTOALL(sendbuf,1,MPI_INTEGER,recvbuf,1,MPI_INTEGER,MPI_COMM_RAMSES,info)
 
         ! Compute total number of newly created particles
         npart_new=0
@@ -637,7 +637,7 @@ subroutine init_part
            write(*,*)myid
            write(*,*)jpart,npart_new
            write(*,*)bound_key
-           call MPI_ABORT(MPI_COMM_WORLD,1,info)
+           call MPI_ABORT(MPI_COMM_RAMSES,1,info)
         end if
 
         ! Allocate communication buffer in reception
@@ -657,7 +657,7 @@ subroutine init_part
               countrecv=countrecv+1
               call MPI_IRECV(reception(icpu,1)%up,buf_count, &
                    & MPI_DOUBLE_PRECISION,icpu-1,&
-                   & tagu,MPI_COMM_WORLD,reqrecv(countrecv),info)
+                   & tagu,MPI_COMM_RAMSES,reqrecv(countrecv),info)
            end if
         end do
 
@@ -670,7 +670,7 @@ subroutine init_part
               countsend=countsend+1
               call MPI_ISEND(emission(icpu,1)%up,buf_count, &
                    & MPI_DOUBLE_PRECISION,icpu-1,&
-                   & tagu,MPI_COMM_WORLD,reqsend(countsend),info)
+                   & tagu,MPI_COMM_RAMSES,reqsend(countsend),info)
            end if
         end do
 
@@ -735,9 +735,9 @@ subroutine init_part
         npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
         npart_cpu(1)=npart_all(1)
 #endif
@@ -790,12 +790,12 @@ subroutine init_part
            endif
            buf_count=nvector*3
 #ifndef WITHOUTMPI
-           call MPI_BCAST(xx,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(vv,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(mm,nvector  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(ii,nvector  ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(eof,1       ,MPI_LOGICAL         ,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(jpart,1     ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
+           call MPI_BCAST(xx,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(vv,buf_count,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(mm,nvector  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(ii,nvector  ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(eof,1       ,MPI_LOGICAL         ,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(jpart,1     ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
            call cmp_cpumap(xx,cc,jpart)
 #endif
 
@@ -830,9 +830,9 @@ subroutine init_part
         npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
         npart_cpu(1)=npart_all(1)
 #endif
@@ -984,15 +984,15 @@ subroutine init_part
                  enddo
               endif
 #ifndef WITHOUTMPI
-              call MPI_BCAST(eob,1        ,MPI_LOGICAL         ,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(xx,nvector*3 ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(vv,nvector*3 ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(ii,nvector   ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(mm,nvector   ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(zz,nvector   ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(tt,nvector   ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(jpart,1      ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-              call MPI_BARRIER(MPI_COMM_WORLD,info)
+              call MPI_BCAST(eob,1        ,MPI_LOGICAL         ,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(xx,nvector*3 ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(vv,nvector*3 ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(ii,nvector   ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(mm,nvector   ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(zz,nvector   ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(tt,nvector   ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(jpart,1      ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+              call MPI_BARRIER(MPI_COMM_RAMSES,info)
               call cmp_cpumap(xx,cc,jpart)
 #endif
               do i=1,jpart
@@ -1009,7 +1009,7 @@ subroutine init_part
                            write(*,*) "Increase npartmax"
                            error=.true.
 #ifndef WITHOUTMPI
-                           call MPI_BCAST(error,1,MPI_LOGICAL,0,MPI_COMM_WORLD,info)
+                           call MPI_BCAST(error,1,MPI_LOGICAL,0,MPI_COMM_RAMSES,info)
 #endif
                         endif
                         xp(ipart,1:3)  = xx(i,1:3)
@@ -1029,7 +1029,7 @@ subroutine init_part
 #endif
               enddo
 #ifndef WITOUTMPI
-              call MPI_BARRIER(MPI_COMM_WORLD,info)
+              call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
               if(error) call clean_stop
            enddo
@@ -1288,24 +1288,24 @@ subroutine init_part
 
            if(icpu==1) then
 #ifndef WITHOUTMPI
-              call MPI_BCAST(header_amr%nlevelmax,1   ,MPI_INTEGER,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(header_amr%ndim,1        ,MPI_INTEGER,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(header_amr%twotondim,1   ,MPI_INTEGER,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(header_amr%ncpu,1        ,MPI_INTEGER,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(header_amr%nboundary,1   ,MPI_INTEGER,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(header_amr%ifout,1       ,MPI_INTEGER,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(header_amr%t,1           ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(header_amr%boxlen,1      ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(header_hydro%nvar,1      ,MPI_INTEGER,0,MPI_COMM_WORLD,info)
-              call MPI_BCAST(header_hydro%ndim,1      ,MPI_INTEGER,0,MPI_COMM_WORLD,info)
+              call MPI_BCAST(header_amr%nlevelmax,1   ,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(header_amr%ndim,1        ,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(header_amr%twotondim,1   ,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(header_amr%ncpu,1        ,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(header_amr%nboundary,1   ,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(header_amr%ifout,1       ,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(header_amr%t,1           ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(header_amr%boxlen,1      ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(header_hydro%nvar,1      ,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
+              call MPI_BCAST(header_hydro%ndim,1      ,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
               if(cosmo) then
-                 call MPI_BCAST(header_amr%omega_m,1     ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                 call MPI_BCAST(header_amr%omega_l,1     ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                 call MPI_BCAST(header_amr%h0,1          ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                 call MPI_BCAST(header_amr%boxlen_ini,1  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                 call MPI_BCAST(header_amr%aexp,1        ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
+                 call MPI_BCAST(header_amr%omega_m,1     ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                 call MPI_BCAST(header_amr%omega_l,1     ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                 call MPI_BCAST(header_amr%h0,1          ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                 call MPI_BCAST(header_amr%boxlen_ini,1  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                 call MPI_BCAST(header_amr%aexp,1        ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
               endif
-              call MPI_BARRIER(MPI_COMM_WORLD,info)
+              call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
               ! Setting simulation time
               ifout          = header_amr%ifout
@@ -1380,9 +1380,9 @@ subroutine init_part
                     end if
                  endif
 #ifndef WITHOUTMPI
-                 call MPI_BARRIER(MPI_COMM_WORLD,info)
-                 call MPI_BCAST(ncache,1,MPI_INTEGER,0,MPI_COMM_WORLD,info)
-                 call MPI_BARRIER(MPI_COMM_WORLD,info)
+                 call MPI_BARRIER(MPI_COMM_RAMSES,info)
+                 call MPI_BCAST(ncache,1,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
+                 call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
                  if(ncache>0.and.ibound.eq.icpu) then
                     kpart = 0
@@ -1448,16 +1448,16 @@ subroutine init_part
                           enddo
                        endif
 #ifndef WITHOUTMPI
-                       call MPI_BARRIER(MPI_COMM_WORLD,info)
-                       call MPI_BCAST(eob,1                     ,MPI_LOGICAL         ,0,MPI_COMM_WORLD,info)
-                       call MPI_BCAST(jpart,1                   ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-                       call MPI_BCAST(kpart,1                   ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-                       call MPI_BCAST(xx,nvector*3              ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                       call MPI_BCAST(vv,nvector*3              ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                       call MPI_BCAST(mm,nvector                ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                       call MPI_BCAST(uu,nvector*nvar_min       ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
+                       call MPI_BARRIER(MPI_COMM_RAMSES,info)
+                       call MPI_BCAST(eob,1                     ,MPI_LOGICAL         ,0,MPI_COMM_RAMSES,info)
+                       call MPI_BCAST(jpart,1                   ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+                       call MPI_BCAST(kpart,1                   ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+                       call MPI_BCAST(xx,nvector*3              ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                       call MPI_BCAST(vv,nvector*3              ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                       call MPI_BCAST(mm,nvector                ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                       call MPI_BCAST(uu,nvector*nvar_min       ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
                        call cmp_cpumap(xx,cc,jpart)
-                       call MPI_BARRIER(MPI_COMM_WORLD,info)
+                       call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
                        do i=1,jpart
 #ifndef WITHOUTMPI
@@ -1473,7 +1473,7 @@ subroutine init_part
                                     write(*,*) "Increase npartmax"
                                     error=.true.
 #ifndef WITHOUTMPI
-                                    call MPI_BCAST(error,1,MPI_LOGICAL,0,MPI_COMM_WORLD,info)
+                                    call MPI_BCAST(error,1,MPI_LOGICAL,0,MPI_COMM_RAMSES,info)
 #endif
                                  endif
                                  xp(ipart,1:3)  = xx(i,1:3)
@@ -1491,7 +1491,7 @@ subroutine init_part
 #endif
                        enddo
 #ifndef WITHOUTMPI
-                       call MPI_BARRIER(MPI_COMM_WORLD,info)
+                       call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
                        if(error) call clean_stop
                     enddo
@@ -1595,17 +1595,17 @@ subroutine init_part
                        enddo
                     endif
 #ifndef WITHOUTMPI
-                    call MPI_BCAST(eob,1        ,MPI_LOGICAL         ,0,MPI_COMM_WORLD,info)
-                    call MPI_BCAST(xx,nvector*3 ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                    call MPI_BCAST(vv,nvector*3 ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                    call MPI_BCAST(ll,nvector*3 ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                    call MPI_BCAST(ii,nvector   ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
-                    call MPI_BCAST(mm,nvector   ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                    call MPI_BCAST(nn,nvector   ,MPI_LOGICAL         ,0,MPI_COMM_WORLD,info)
-                    call MPI_BCAST(tt,nvector   ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
-                    call MPI_BCAST(jpart,1      ,MPI_INTEGER         ,0,MPI_COMM_WORLD,info)
+                    call MPI_BCAST(eob,1        ,MPI_LOGICAL         ,0,MPI_COMM_RAMSES,info)
+                    call MPI_BCAST(xx,nvector*3 ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                    call MPI_BCAST(vv,nvector*3 ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                    call MPI_BCAST(ll,nvector*3 ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                    call MPI_BCAST(ii,nvector   ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
+                    call MPI_BCAST(mm,nvector   ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                    call MPI_BCAST(nn,nvector   ,MPI_LOGICAL         ,0,MPI_COMM_RAMSES,info)
+                    call MPI_BCAST(tt,nvector   ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
+                    call MPI_BCAST(jpart,1      ,MPI_INTEGER         ,0,MPI_COMM_RAMSES,info)
                     call cmp_cpumap(xx,cc,jpart)
-                    call MPI_BARRIER(MPI_COMM_WORLD,info)
+                    call MPI_BARRIER(MPI_COMM_RAMSES,info)
 #endif
                     do i=1,jpart
 #ifndef WITHOUTMPI
@@ -1621,7 +1621,7 @@ subroutine init_part
                                  write(*,*) "Increase nsinkmax"
                                  error=.true.
 #ifndef WITHOUTMPI
-                                 call MPI_BCAST(error,1,MPI_LOGICAL,0,MPI_COMM_WORLD,info)
+                                 call MPI_BCAST(error,1,MPI_LOGICAL,0,MPI_COMM_RAMSES,info)
 #endif
                               endif
                               xsink(ipart,1:3)  = xx(i,1:3)
@@ -1639,7 +1639,7 @@ subroutine init_part
 #endif
                     enddo
 #ifndef WITOUTMPI
-                    call MPI_BARRIER(MPI_COMM_WORLD,info)
+                    call MPI_BARRIER(MPI_COMM_RAMSES,info)
                     if(error) call clean_stop
 #endif
                  enddo
@@ -1663,10 +1663,10 @@ subroutine init_part
               if(icpu.gt.header_part%ncpu) eocpu=.true.
            endif
 #ifndef WITHOUTMPI
-           call MPI_BCAST(eocpu,1      ,MPI_LOGICAL,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(icpu,1       ,MPI_INTEGER,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(nstar_tot,1  ,MPI_INTEGER,0,MPI_COMM_WORLD,info)
-           call MPI_BCAST(mstar_tot,1  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,info)
+           call MPI_BCAST(eocpu,1      ,MPI_LOGICAL,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(icpu,1       ,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(nstar_tot,1  ,MPI_INTEGER,0,MPI_COMM_RAMSES,info)
+           call MPI_BCAST(mstar_tot,1  ,MPI_DOUBLE_PRECISION,0,MPI_COMM_RAMSES,info)
 #endif
         enddo
         if(myid==1) then
@@ -1690,7 +1690,7 @@ subroutine init_part
         npart_all       = 0
         npart_cpu(myid) = npart
 #ifndef WITHOUTMPI
-        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+        call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
         npart_cpu(1) = npart_all(1)
 #endif
         do icpu=2,ncpu
@@ -1808,9 +1808,9 @@ subroutine load_gadget
   npart_cpu(myid)=npart
 #ifndef WITHOUTMPI
 #ifndef LONGINT
-  call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER,MPI_SUM,MPI_COMM_RAMSES,info)
 #else
-  call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,info)
+  call MPI_ALLREDUCE(npart_cpu,npart_all,ncpu,MPI_INTEGER8,MPI_SUM,MPI_COMM_RAMSES,info)
 #endif
   npart_cpu(1)=npart_all(1)
 #endif

@@ -212,7 +212,7 @@ subroutine init_flow_fine(ilevel)
                  endif
                  buf_count=n1(ilevel)*n2(ilevel)
 #ifndef WITHOUTMPI
-                 call MPI_BCAST(init_plane,buf_count,MPI_REAL,0,MPI_COMM_WORLD,info)
+                 call MPI_BCAST(init_plane,buf_count,MPI_REAL,0,MPI_COMM_RAMSES,info)
 #endif
                  if(ncache>0)then
                     if(i3.ge.i3_min.and.i3.le.i3_max)then

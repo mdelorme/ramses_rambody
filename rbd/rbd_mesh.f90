@@ -81,7 +81,7 @@ subroutine rbd_sync_mesh
   real(dp), dimension(1:3) :: cur_xp
 
   if (rbd_gc_owner == -1) then
-     call MPI_Abort(MPI_COMM_WORLD, 110, ierr)
+     call MPI_Abort(MPI_COMM_RAMSES, 110, ierr)
   end if
 
   call units(scale_l, scale_t, scale_d, scale_v, scale_nH, scale_T2)
@@ -178,7 +178,7 @@ subroutine rbd_build_force_profile
   close(92548)
 
   
-  !call MPI_Abort(MPI_COMM_WORLD, 3, ierr)
+  !call MPI_Abort(MPI_COMM_RAMSES, 3, ierr)
 end subroutine rbd_build_force_profile
 
 subroutine rbd_get_force_contribution(xi, fc)
@@ -238,7 +238,7 @@ subroutine rbd_get_force_contribution(xi, fc)
         write(6,*) 'ngx = ', ngx
         write(6,*) 'Min mesh point = ', rbd_mesh_pos(:,2) 
         write(6,*) 'Max mesh point = ', rbd_mesh_pos(:,rbd_mesh_np) 
-        call MPI_Abort(MPI_COMM_WORLD, 112, ierr)
+        call MPI_Abort(MPI_COMM_RAMSES, 112, ierr)
      end if
 
      ! Copied from the nbody6 interpolation
