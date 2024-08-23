@@ -810,7 +810,7 @@ subroutine virtual_tree_fine(ilevel)
      write(*,*)emission(1:ncpu,ilevel)%npart
      write(*,*)'============================'
      write(*,*)reception(1:ncpu,ilevel)%npart
-     call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+     call MPI_ABORT(MPI_COMM_WORLD,1,info)
   end if
 
   ! Scatter new particles from communication buffer

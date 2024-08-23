@@ -2,9 +2,9 @@ subroutine rbd_get_nb6dt
   use amr_commons
   use rbd_commons
   use rbd_parameters
+  use mpi_mod
 
   implicit none
-  include 'mpif.h'
 
   integer :: ierr
 
@@ -36,9 +36,9 @@ subroutine rbd_sync_timestep(ilevel)
   use amr_commons
   use rbd_commons
   use rbd_parameters
+  use mpi_mod
   
   implicit none
-  include 'mpif.h'
 
   integer, intent(in) :: ilevel
   integer  :: ierr, istatus, i, k

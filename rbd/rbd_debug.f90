@@ -26,8 +26,8 @@ end subroutine rbd_dbg_part_count
 subroutine rbd_print_particles
   use rbd_commons
   use amr_commons
+  use mpi_mod
   implicit none
-  include 'mpif.h'
   integer::ipart,idim,i,nxny,ilevel
   integer::npart1,info,icpu,nx_loc
   logical::error
@@ -68,8 +68,8 @@ end subroutine rbd_print_particles
 subroutine rbd_check_particles(ilevel)
   use rbd_commons
   use amr_commons
+  use mpi_mod
   implicit none
-  include 'mpif.h'
   integer::ipart,idim,i,nxny,ilevel
   integer::npart1,info,icpu,nx_loc
   logical::error
@@ -123,8 +123,8 @@ subroutine rbd_ramses_part_per_level(name)
   use amr_commons
   use rbd_commons
   use pm_commons
+  use mpi_mod
   implicit none
-  include 'mpif.h'
   character(len=*), intent(in) :: name
   integer :: counter, ilevel, igrid, jgrid, tot, ipart, jpart, icpu, part_tot
   write(6,*) '------------'
@@ -148,8 +148,8 @@ end subroutine rbd_ramses_part_per_level
 subroutine rbd_particles_per_level
   use rbd_commons
   use amr_commons
+  use mpi_mod
   implicit none
-  include 'mpif.h'
   integer::ipart,idim,i,nxny,ilevel
   integer::npart1,info,icpu,nx_loc
   logical::error

@@ -558,7 +558,7 @@ subroutine init_part
            write(*,*)myid
            write(*,*)jpart,npart_new
            write(*,*)bound_key
-           call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+           call MPI_ABORT(MPI_COMM_WORLD,1,info)
         end if
 
         ! Allocate communication buffer in reception

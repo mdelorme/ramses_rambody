@@ -2,10 +2,9 @@ subroutine rbd_sync_escapers
   use amr_commons
   use pm_commons
   use rbd_commons
+  use mpi_mod
   
   implicit none
-
-  include 'mpif.h'
 
   integer  :: i, j, ierr
   real(dp) :: scale_l, scale_t, scale_d, scale_v, scale_nH, scale_T2
@@ -61,10 +60,9 @@ subroutine rbd_push_escapers
   use amr_commons
   use pm_commons
   use rbd_commons
+  use mpi_mod
 
   implicit none
-
-  include 'mpif.h'
 
   logical, allocatable, dimension(:)  :: pushed
   integer, dimension(1:nvector), save :: ind_grid, ind_cell, ind_part
@@ -211,7 +209,7 @@ subroutine rbd_push_escapers
         if (nnew_tot /= rbd_n_escapers) then
            write(6,*) 'ERROR : Number of pushed particles is different than number of escapers !'
            call flush(6)
-           call MPI_Abort(MPI_COMM_RAMSES, 165)
+           call MPI_ABORT(MPI_COMM_WORLD, 165, ierr)
         end if
      end if
 

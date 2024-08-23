@@ -13,6 +13,7 @@ subroutine output_frame()
 #endif
   use constants, only: pi, c_cgs, L_sun, M_sun, yr2sec
   use mpi_mod
+  use file_module, ONLY: mkdir
   implicit none
 #if NDIM > 1
 #ifndef WITHOUTMPI
@@ -63,6 +64,7 @@ subroutine output_frame()
   logical::is_cube, is_sphere, is_square, is_mean_mass, is_mean_dens
   logical::is_mean_vol, is_sum, is_mean, is_min, is_max
   character(len=1)::temp_string
+  integer, parameter :: mode = int(O'755')
   integer,dimension(6,8)::lind = reshape((/1, 2, 3, 4, 1, 3, 2, 4,    &
                                            5, 6, 7, 8, 5, 7, 6, 8,    &
                                            1, 5, 2, 6, 1, 2, 5, 6,    &
@@ -909,7 +911,12 @@ subroutine output_frame()
           else if (rambody .and. typep(j)%family==FAM_TRACER_STAR .and. typep(j)%tag == 1) then
              data_frame(ii,jj,kk)=data_frame(ii,jj,kk) + 1.0e-3 ! Manual luminosity to be seen
 
-          if (rambody) then
+            endif
+         enddo
+      end do
+      ! End loop over particles
+
+      if (rambody) then
            write(6,*) 'Computing movie frame for nbody6 particles. Npart=', nb6_npart
            call flush(6)
 
@@ -1000,10 +1007,6 @@ subroutine output_frame()
               enddo
            end do
         end if
-          endif
-       enddo
-    end do
-    ! End loop over particles
 
 #ifndef WITHOUTMPI
     ! Maps communication

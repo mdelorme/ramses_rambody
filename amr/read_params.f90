@@ -48,7 +48,7 @@ subroutine read_params
 #endif
 
   ! Rambody
-  integer::nb6_procs, rms_procs, tmp_color, tmp_rank, wld_id, rbd_lid
+  integer::nb6_procs, rms_procs, tmp_color, tmp_rank, wld_id, rbd_lid, isize
   character(len=32) :: tmp
   !--------------------------------------------------
   ! Namelist definitions
@@ -80,7 +80,8 @@ subroutine read_params
   ! MPI initialization
 #ifndef WITHOUTMPI
   call MPI_INIT(ierr)
-  call MPI_COMM_RANK(MPI_COMM_RAMSES, wld_id, ierr)
+  call MPI_COMM_SIZE(MPI_COMM_WORLD, isize, ierr)
+  call MPI_COMM_RANK(MPI_COMM_WORLD, wld_id, ierr)
   myid = wld_id
   write(6,*) 'RAMSES : Hi from process : ', myid
 
@@ -96,10 +97,10 @@ subroutine read_params
   ! Creating the new communicators
   ! 1- Ramses communicator
   if (rambody) then
-     call MPI_Barrier(MPI_COMM_RAMSES, ierr)
-     call MPI_COMM_SPLIT(MPI_COMM_RAMSES, 1, wld_id, MPI_COMM_RAMSES, ierr)
+     call MPI_Barrier(MPI_COMM_WORLD, ierr)
+     call MPI_COMM_SPLIT(MPI_COMM_WORLD, 1, wld_id, MPI_COMM_RAMSES, ierr)
   else
-     MPI_COMM_RAMSES = MPI_COMM_RAMSES
+     MPI_COMM_RAMSES = MPI_COMM_WORLD
   end if
 
   call MPI_COMM_RANK(MPI_COMM_RAMSES, myid, ierr)
@@ -112,7 +113,7 @@ subroutine read_params
   if (myid .eq. 1) then
      tmp_color = 0
   end if
-  call MPI_COMM_SPLIT(MPI_COMM_RAMSES, tmp_color, wld_id, MPI_COMM_RAMBODY, ierr)
+  call MPI_COMM_SPLIT(MPI_COMM_WORLD, tmp_color, wld_id, MPI_COMM_RAMBODY, ierr)
   
   if (myid .eq. 1) then
      call MPI_COMM_Rank(MPI_COMM_RAMBODY, rbd_lid, ierr)

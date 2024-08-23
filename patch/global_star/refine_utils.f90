@@ -65,7 +65,7 @@ subroutine refine_coarse
      write(*,*)'No more free memory'
      write(*,*)'Increase ngridmax'
 #ifndef WITHOUTMPI
-     call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+     call MPI_ABORT(MPI_COMM_WORLD,1,info)
 #else
      stop
 #endif

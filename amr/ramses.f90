@@ -57,6 +57,7 @@ subroutine output_signal
   output_now = .true.
 
 end subroutine output_signal
+#endif
 
 ! Initialisation of Rambody
 subroutine init_rambody
@@ -103,7 +104,7 @@ subroutine init_rambody
      end if
   end if
 
-  call MPI_Barrier(MPI_COMM_RAMSES, ierr)
+  call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
 end subroutine init_rambody
 

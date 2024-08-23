@@ -774,7 +774,7 @@ subroutine cmp_ordering(x,order,nn)
      if(bit_length==32) then
         write(*,*)'Error in cmp_minmaxorder'
 #ifndef WITHOUTMPI
-        call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+        call MPI_ABORT(MPI_COMM_WORLD,1,info)
 #else
         stop
 #endif
@@ -922,7 +922,7 @@ subroutine cmp_minmaxorder(x,order_min,order_max,dx,nn)
      if(bit_length==32) then
         write(*,*)'Error in cmp_minmaxorder'
 #ifndef WITHOUTMPI
-        call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+        call MPI_ABORT(MPI_COMM_WORLD,1,info)
 #else
         stop
 #endif

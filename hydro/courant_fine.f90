@@ -110,19 +110,20 @@ subroutine courant_fine(ilevel)
         ! Gather gravitational acceleration
         gg=0.0d0
         if(poisson)then
-        if (rambody .and. rbd_nbody6_force) then
-           ! We need the position here
-           do idim=1,ndim
-              do i=1,nleaf
-                 gg(i,idim)=f(ind_leaf(i),idim) + fc(i,idim)
-              end do
-           end do
-        else
-           do idim=1,ndim
-              do i=1,nleaf
-                 gg(i,idim)=f(ind_leaf(i),idim)
-              end do
-           end do
+          if (rambody .and. rbd_nbody6_force) then
+             ! We need the position here
+             do idim=1,ndim
+                do i=1,nleaf
+                   gg(i,idim)=f(ind_leaf(i),idim) + fc(i,idim)
+                end do
+             end do
+          else
+             do idim=1,ndim
+                do i=1,nleaf
+                   gg(i,idim)=f(ind_leaf(i),idim)
+                end do
+             end do
+          end if
         end if
 
 #if USE_TURB==1
@@ -218,10 +219,10 @@ subroutine check_cons(ilevel)
   ! Check mass and energy conservation
   !----------------------------------------------------------------------
   integer::i,ivar,ind,ncache,igrid,iskip
-  integer::info,nleaf,ngrid,
+  integer::nleaf,ngrid
   integer,dimension(1:nvector),save::ind_grid,ind_cell,ind_leaf
 
-  real(dp)::dx,vol,
+  real(dp)::dx,vol
   real(kind=8)::mass_loc,ekin_loc,eint_loc
   real(kind=8)::mass_all,ekin_all,eint_all
   real(dp),dimension(1:nvector,1:nvar),save::uu

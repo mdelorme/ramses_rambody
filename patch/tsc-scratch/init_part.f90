@@ -56,7 +56,7 @@
 
   if(verbose)write(*,*)'Entering init_part'
 
-  if(verbose)write(*,*)'WARNING: NEVER USE FAMILY CODES / TAGS > 127.'
+  if(verbose)write(*,*)' FAMILY CODES / TAGS > 127.'
   if(verbose)write(*,*)'See https://bitbucket.org/rteyssie/ramses/wiki/Particle%20Families'
 
   if(allocated(xp))then
@@ -752,7 +752,7 @@ contains
        write(*,*)myid
        write(*,*)jpart,npart_new
        write(*,*)bound_key
-       call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+       call MPI_ABORT(MPI_COMM_WORLD,1,info)
     end if
 
     ! Allocate communication buffer in reception

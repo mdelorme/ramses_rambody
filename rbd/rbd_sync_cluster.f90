@@ -2,9 +2,9 @@ subroutine rbd_sync_cluster
   use amr_commons
   use rbd_commons
   use rbd_parameters
+  use mpi_mod
   implicit none
   
-  include 'mpif.h'
   
   integer :: ierr, i, k, ipart, nx_loc, ilevel
   integer :: nbufpart
@@ -87,9 +87,9 @@ subroutine rbd_sync_gc(add_virtual)
   use rbd_commons
   use amr_commons
   use pm_commons
+  use mpi_mod
   
   implicit none
-  include 'mpif.h'
 
   integer :: ierr, j, i
   logical, intent(in) :: add_virtual

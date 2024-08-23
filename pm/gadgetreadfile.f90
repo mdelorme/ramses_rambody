@@ -43,7 +43,7 @@ CONTAINS
 !
 
 #ifndef WITHOUTMPI
-    use amr_commons,only:myid,IOGROUPSIZE,ncpu
+    use amr_commons,only:myid,IOGROUPSIZE,ncpu,MPI_COMM_RAMSES
 #endif
     use mpi_mod
   implicit none
@@ -126,7 +126,7 @@ CONTAINS
 ! already be allocated. Use readheader to get particle numbers to do this.
 !
 #ifndef WITHOUTMPI
-    use amr_commons,only:myid,IOGROUPSIZE,ncpu
+    use amr_commons,only:myid,IOGROUPSIZE,ncpu,MPI_COMM_RAMSES
 #endif
     use mpi_mod
 
@@ -221,7 +221,7 @@ CONTAINS
 ! already be allocated. Use readheader to get particle numbers to do this.
 !
 #ifndef WITHOUTMPI
-    use amr_commons,only:myid,IOGROUPSIZE,ncpu
+    use amr_commons,only:myid,IOGROUPSIZE,ncpu,MPI_COMM_RAMSES
 #endif
     use mpi_mod
 

@@ -877,7 +877,7 @@ contains
        write(*,*)myid
        write(*,*)jpart,npart_new
        write(*,*)bound_key
-       call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+       call MPI_ABORT(MPI_COMM_WORLD,1,info)
     end if
 
     ! Allocate communication buffer in reception
@@ -1604,7 +1604,7 @@ contains
                    if(ipart.gt.npartmax) then
                       write(*,*) "Increase npartmax"
 #ifndef WITHOUTMPI
-                      call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+                      call MPI_ABORT(MPI_COMM_WORLD,1,info)
 #else
                       stop
 #endif

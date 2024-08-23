@@ -25,7 +25,7 @@ subroutine getmem(outmem)
   use amr_commons,only:myid
 #ifndef WITHOUTMPI
   use amr_commons,only:IOGROUPSIZE
-  use amr_commons,only:ncpu
+  use amr_commons,only:ncpu,MPI_COMM_RAMSES
 #endif
   use mpi_mod
   implicit none

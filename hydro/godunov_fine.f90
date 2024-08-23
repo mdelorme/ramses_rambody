@@ -253,7 +253,7 @@ subroutine add_gravity_source_terms(ilevel)
   real(dp),dimension(1:twotondim,1:3)::xc
   real(dp),dimension(1:3)::skip_loc
   real(dp)::scale,dx_loc,dx
-  integer::ix,iy,iz
+  integer::ix,iy,iz,nx_loc
 
   if(numbtot(1,ilevel)==0)return
   if(verbose)write(*,111)ilevel

@@ -87,7 +87,7 @@ end subroutine make_stellar_from_sinks
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine create_stellar(ncreate, nbuf, id_new)
-    use amr_commons, only: dp, myid, ncpu, ndim, t
+    use amr_commons, only: dp, myid, ncpu, ndim, t, MPI_COMM_RAMSES
     use sink_feedback_parameters
     use constants, only:M_sun
     use mpi_mod

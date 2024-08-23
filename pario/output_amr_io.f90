@@ -224,7 +224,7 @@ subroutine backup_amr_recv
         list_recv(src)=.true.
      else
         print *,'Error: unexpected message received by ',myid_world
-        call MPI_ABORT(MPI_COMM_RAMSES,1,ierr)
+        call MPI_ABORT(MPI_COMM_WORLD,1,ierr)
      end if
 
      call MPI_RECV(xdp,19+2*noutput+ncpu,MPI_DOUBLE_PRECISION,src,tag, &

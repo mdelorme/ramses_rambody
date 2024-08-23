@@ -3,8 +3,8 @@ subroutine rbd_output_part(filename)
   use amr_commons
   use rbd_commons
   use pm_commons
+  use mpi_mod  
   implicit none
-  include 'mpif.h'  
   character(LEN=80)::filename
 
   integer::i,idim,ilun,ipart, idpart, pid

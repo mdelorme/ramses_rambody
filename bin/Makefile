@@ -4,13 +4,13 @@
 # Compilation time parameters
 
 # Do we want a debug build? 1=Yes, 0=No
-DEBUG = 0
+DEBUG = 1
 # Compiler flavor: GNU or INTEL
 COMPILER = GNU
 # Size of vector cache
 NVECTOR = 32
 # Number of dimensions
-NDIM = 1
+NDIM = 3
 # Float precision size
 NPRE = 8
 # hydro/mhd/rhd solver
@@ -22,7 +22,7 @@ RT = 0
 # Use turbulence? 1=Yes, 0=No (requires fftw3)
 USE_TURB = 0
 # Use MPI? 1=Yes, 0=No
-MPI = 0
+MPI = 1
 MPIF90 = mpif90
 # Root name of executable
 EXEC = ramses

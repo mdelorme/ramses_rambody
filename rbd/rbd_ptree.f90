@@ -6,8 +6,8 @@ subroutine rbd_init_tree
   use rbd_commons
   use rbd_parameters
   use amr_commons
+  use mpi_mod
   implicit none
-  include 'mpif.h'
   !------------------------------------------------------
   ! This subroutine build the particle linked list at the 
   ! coarse level for ALL the particles in the box.
@@ -625,9 +625,9 @@ end subroutine rbd_merge_tree_fine
 subroutine rbd_virtual_tree_fine(ilevel)
   use rbd_commons
   use amr_commons
-  implicit none
-  include 'mpif.h'
+  use mpi_mod
   
+  implicit none
   integer::ilevel
   !-----------------------------------------------------------------------
   ! This subroutine move particles across processors boundaries.
@@ -784,7 +784,7 @@ subroutine rbd_virtual_tree_fine(ilevel)
      write(*,*)emission(1:ncpu,ilevel)%npart
      write(*,*)'============================'
      write(*,*)reception(1:ncpu,ilevel)%npart
-     call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+     call MPI_ABORT(MPI_COMM_WORLD,1,info)
   end if
 
   ! Scatter new particles from communication buffer
@@ -910,8 +910,8 @@ end subroutine rbd_empty_comm
 subroutine rbd_compute_level_min
   use rbd_commons
   use amr_commons
+  use mpi_mod
   implicit none
-  include 'mpif.h'
   integer::ipart,idim,i,nxny,ilevel
   integer::npart1,info,icpu,nx_loc
   logical::error
@@ -954,9 +954,9 @@ subroutine rbd_compute_gc_owner(add_virtual)
   use rbd_commons
   use amr_commons
   use pm_commons
+  use mpi_mod
   
   implicit none
-  include 'mpif.h'
   integer::ipart,idim,i,nxny,ilevel
   integer::npart1,info,icpu,nx_loc
   logical::error
@@ -1034,7 +1034,7 @@ subroutine rbd_compute_gc_owner(add_virtual)
   if (myid == 1 .and. rbd_gc_owner == -1) then
      write(6,*) 'ERROR : Rambody guiding center has disappeared !', add_virtual
      call flush(6)
-     call MPI_Abort(MPI_COMM_RAMSES, 111, ierr)
+     call MPI_ABORT(MPI_COMM_WORLD, 111, ierr)
   end if
 
 end subroutine rbd_compute_gc_owner

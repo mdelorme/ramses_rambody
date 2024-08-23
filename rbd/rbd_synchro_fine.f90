@@ -1,8 +1,8 @@
 subroutine rbd_synchro_fine(ilevel)
   use rbd_commons
   use amr_commons
+  use mpi_mod 
   implicit none
-  include 'mpif.h' 
   integer::ilevel
   !--------------------------------------------------------------------
   ! This routine synchronizes particle velocity with particle

@@ -2,9 +2,9 @@ subroutine rbd_init
   use amr_commons
   use rbd_commons
   use pm_commons
+  use mpi_mod
   implicit none
   
-  include 'mpif.h'
   real(dp) :: scale_l, scale_t, scale_d, scale_v, scale_nH, scale_T2
 
   ! Used for restarting
@@ -142,9 +142,9 @@ subroutine rbd_init_gc(is_restart)
   use rbd_commons
   use amr_commons
   use pm_commons
+  use mpi_mod
   implicit none
 
-  include 'mpif.h'
 
   logical, intent(in) :: is_restart
   integer :: i, j, k, pid, ierr, nx_loc, nxny, ix, iy, iz

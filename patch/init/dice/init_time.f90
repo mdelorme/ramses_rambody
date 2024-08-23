@@ -88,7 +88,7 @@ subroutine init_time
      if(iresult.eq.0)then
          write(*,*) 'Grackle - error in initialize_chemistry_data'
 #ifndef WITHOUTMPI
-         call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+         call MPI_ABORT(MPI_COMM_WORLD,1,info)
 #else
          stop
 #endif
@@ -168,7 +168,7 @@ subroutine init_time
      if(iresult.eq.0)then
          write(*,*) 'Grackle - error in initialize_chemistry_data'
 #ifndef WITHOUTMPI
-         call MPI_ABORT(MPI_COMM_RAMSES,1,info)
+         call MPI_ABORT(MPI_COMM_WORLD,1,info)
 #else
          stop
 #endif

@@ -68,6 +68,8 @@ module pm_commons
   integer,dimension(IRandNumSize) :: localseed=-1
   integer, dimension(IRandNumSize) :: tracer_seed = -1
 
+  integer :: next_pid
+  
   ! Particle types
   integer, parameter   :: NFAMILIES=5
   integer(1),parameter :: FAM_DM=1, FAM_STAR=2, FAM_CLOUD=3, FAM_DEBRIS=4, FAM_OTHER=5, FAM_UNDEF=127

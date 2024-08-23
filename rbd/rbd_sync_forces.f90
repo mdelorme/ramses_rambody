@@ -3,9 +3,9 @@ subroutine rbd_sync_forces
   use rbd_commons
   use pm_commons
   use rbd_parameters
+  use mpi_mod
   implicit none
   
-  include 'mpif.h'
   
   integer :: ierr, i, j, k
   integer :: nbufpart
@@ -213,9 +213,9 @@ subroutine rbd_sync_forces_restart
   use amr_commons
   use rbd_commons
   use rbd_parameters
+  use mpi_mod
   implicit none
   
-  include 'mpif.h'
   real(dp) :: scale_l, scale_t, scale_d, scale_v, scale_nH, scale_T2, scale_M
   real(dp), parameter :: cm2pc  = 3.24078D-19 
   real(dp), parameter :: s2Myr  = 3.16881D-14

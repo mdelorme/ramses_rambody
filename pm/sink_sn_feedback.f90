@@ -301,7 +301,7 @@ end subroutine make_sn_stellar
 subroutine sphere_average(navg, center, radius, rpow, upow, avg)
     use amr_parameters, only: boxlen, dp, hydro, icoarse_max, icoarse_min &
         & , jcoarse_min, kcoarse_min, levelmin, ndim, ngridmax, nlevelmax &
-        & , nvector, twotondim, verbose
+        & , nvector, twotondim, verbose, MPI_COMM_RAMSES
     use amr_commons, only: active, ncoarse, son, xg, myid
     use hydro_parameters, only: nvar
     use hydro_commons, only: uold
