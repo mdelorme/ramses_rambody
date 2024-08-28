@@ -30,6 +30,7 @@ recursive subroutine amr_step(ilevel,icount)
   integer::i,idim,ivar
   logical::ok_defrag,output_now_all
   logical,save::first_step=.true.
+  logical::is_sync_time
 
   if(numbtot(1,ilevel)==0)return
 
@@ -602,7 +603,13 @@ recursive subroutine amr_step(ilevel,icount)
   if (rambody) then
      call timer('rbd_sync_forces', 'start')
      ! Level max to make sure we send this at the beginning of integration and not after the timestep !
-     if ((numbtot(1,ilevel+1)==0 .or. ilevel==nlevelmax) .and. rbd_sync_state == 2) then
+     is_sync_time = .false. ! Why order priority does not work and am I forced to do this ?
+     if (ilevel == nlevelmax) then
+      is_sync_time = .true.
+     else if (numbtot(1, ilevel+1) == 0) then
+      is_sync_time = .true.
+     endif
+     if (is_sync_time .and. rbd_sync_state == 2) then
         call rbd_sync_forces
         rbd_sync_state = 3
      end if
