@@ -73,7 +73,7 @@ subroutine rbd_sync_mesh
 
   integer :: ierr, i, k, j
   integer, dimension(1:nvector) :: cc
-  real(dp), dimension(1:3, 1:nvector) :: xx_dp
+  real(dp), dimension(1:nvector,1:ndim) :: xx_dp
   real(dp) :: scale_l, scale_t, scale_d, scale_v, scale_nH, scale_T2
   real(dp), parameter :: pc2cm   = 3.086e18
   real(dp), parameter :: kms2cms = 1.0e5
@@ -118,7 +118,7 @@ subroutine rbd_sync_mesh
   
   do i=1, rbd_mesh_np
      cur_xp = rbd_mesh_pos(:,i) + rbd_xc(:)
-     xx_dp(:,1) = cur_xp / boxlen
+     xx_dp(1,:) = cur_xp / boxlen
 
      ! TODO Vectorize this !!!
      call cmp_cpumap(xx_dp, cc, 1)
