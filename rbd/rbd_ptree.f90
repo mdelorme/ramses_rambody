@@ -137,7 +137,7 @@ subroutine rbd_init_tree
         ind_grid(i)=son(1+ix(i)+nx*iy(i)+nxny*iz(i))
         if(ind_grid(i)==0)error=.true.
      end do
-     if(error)then
+     if(error)then 
         write(*,*)'Error in rbd_init_tree'
         write(*,*)'Particles appear in unrefined regions'
         call clean_stop
@@ -424,7 +424,7 @@ subroutine rbd_kill_tree_fine(ilevel)
               ind_part(ip)=ipart
               ind_grid_part(ip)=ig   
 
-              rbd_levelp(ind_part) = ilevel
+              rbd_levelp(ind_part(ip)) = ilevel
 
               if(ip==nvector)then
                  call rbd_kill_tree(ind_grid,ind_part,ind_grid_part,ig,ip,ilevel,tot)
@@ -884,6 +884,8 @@ subroutine rbd_empty_comm(ind_com,np,ilevel,icpu)
   do i=1,np
      rbd_levelp(ind_part(i))=emission(icpu,ilevel)%fp(ind_com(i),2)
      rbd_id    (ind_part(i))=emission(icpu,ilevel)%fp(ind_com(i),3)
+     write(6,*) 'Rbd id(', ind_part(i), ') = ', rbd_id(ind_part(i))
+     call flush(6)
   end do
 
   ! Scatter particle position and velocity
@@ -1006,7 +1008,7 @@ subroutine rbd_compute_gc_owner(add_virtual)
               npart1 = numbp(igrid)
               ipart = headp(igrid)
               
-              do jpart=1, npart
+              do jpart=1, npart1
                  if (idp(ipart) == rbd_gc_id) then
                     rbd_gc_owner = myid
                     rbd_gc_level = ilevel
