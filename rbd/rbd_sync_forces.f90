@@ -66,20 +66,23 @@ subroutine rbd_sync_forces
            igrid=headl(icpu, ilevel)
            do jgrid=1,numbl(icpu, ilevel) 
               ipart = rbd_headp(igrid)
-              check_tot = check_tot + rbd_id(ipart)
 
-              do jpart=1, rbd_numbp(igrid)
-                 n_particles = n_particles + 1
+              if (ipart > 0) then
+                check_tot = check_tot + rbd_id(ipart)
 
-                 ! Storing position of the particles
-                 rbd_send_buf(1:3, rbd_id(ipart)) = rbd_mesh_pos(:, rbd_id(ipart)) - rbd_mesh_pos(:,1)
-                 rbd_send_buf(4:6, rbd_id(ipart)) = rbd_fp(:, ipart)
+                do jpart=1, rbd_numbp(igrid)
+                  n_particles = n_particles + 1
 
-                 ! Duplicating the info for output dumping
-                 rbd_mesh_force(1:3, rbd_id(ipart)) = rbd_fp(:, ipart)
+                  ! Storing position of the particles
+                  rbd_send_buf(1:3, rbd_id(ipart)) = rbd_mesh_pos(:, rbd_id(ipart)) - rbd_mesh_pos(:,1)
+                  rbd_send_buf(4:6, rbd_id(ipart)) = rbd_fp(:, ipart)
 
-                 ipart = rbd_nextp(ipart)
-              end do
+                  ! Duplicating the info for output dumping
+                  rbd_mesh_force(1:3, rbd_id(ipart)) = rbd_fp(:, ipart)
+
+                  ipart = rbd_nextp(ipart)
+                end do
+              end if
 
               igrid = next(igrid)
            end do
