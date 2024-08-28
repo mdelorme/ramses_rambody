@@ -157,7 +157,7 @@ subroutine rbd_push_escapers
 
      ! Now we push everything
      do ipart=1, nnew, nvector
-        npart_loc = min(nvector, nnew-ipart+1)
+        npart_loc = min(nvector, nnew-ipart)
         call remove_free(ind_part, npart_loc)
         call add_list(ind_part, ind_grid_new(ipart:ipart+npart_loc), ok_new, npart_loc)
 
@@ -189,7 +189,7 @@ subroutine rbd_push_escapers
            typep(ip)%family = FAM_TRACER_STAR ! TODO : Change that to STAR
            typep(ip)%tag = 1 ! Setting a specific tag to the escapers so we can find them easily
 
-           rbd_dbg_esc(:,ipart) = xp(ip,:)
+           !rbd_dbg_esc(:,ipart) = xp(ip,:)
            
            levelp(ip) = ind_level_part(ipart+i-1)
         end do
