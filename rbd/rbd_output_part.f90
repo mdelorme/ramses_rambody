@@ -48,15 +48,15 @@ subroutine rbd_output_part(filename)
      write(ilun) rbd_gc_owner
      allocate(xdp(nb6_npart))
 
-     if (rbd_dbg_nesc > 0) then
-        dbg = 0
+     !if (rbd_dbg_nesc > 0) then
+     !   dbg = 0
         ! Debug escapers
-        do i=1, rbd_dbg_nesc
-           dbg = dbg + rbd_dbg_esc(:, i)
-        end do
+        !do i=1, rbd_dbg_nesc
+        !   dbg = dbg + rbd_dbg_esc(:, i)
+        !end do
         
-        dbg = dbg / rbd_dbg_nesc
-     end if
+       !dbg = dbg / rbd_dbg_nesc
+     !end if
 
      do i=1,3
         xdp = nb6_xp(i,1:nb6_npart) + rbd_xc(i)
